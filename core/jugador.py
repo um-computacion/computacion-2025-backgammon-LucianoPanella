@@ -1,3 +1,5 @@
+#Revisar
+
 class jugador:
     def __init__(self, nombre: str, color: str):
         self.__nombre__ = nombre

@@ -1,3 +1,6 @@
+# Terminar de definir la validacion de movimientos
+# y definir la funcion mover pieza
+#
 class tablero:
 
     def __init__(self): #Creo tablero con 24 posiciones

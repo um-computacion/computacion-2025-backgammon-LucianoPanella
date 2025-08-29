@@ -1,3 +1,5 @@
+#Revisar
+#
 import random
 
 class Dice:
