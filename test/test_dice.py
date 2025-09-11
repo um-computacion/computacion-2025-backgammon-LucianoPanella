@@ -1,22 +1,22 @@
 import unittest
-from core.dice import Dice
+from core.dice import dice
 import random
 
 class TestDice(unittest.TestCase):
 
     def test_tirada_devuelve_lista(self):
-        dado = Dice()
+        dado = dice()
         resultado = dado.tirada()
         self.assertIsInstance(resultado, list, "El resultado debe ser una lista.")
 
     def test_valores_entre_1_y_6(self):
-        dado = Dice()
+        dado = dice()
         resultado = dado.tirada()
         for valor in resultado:
             self.assertTrue(1 <= valor <= 6, f"El valor {valor} no está entre 1 y 6.")
 
     def test_tirada_doble(self):
-        dado = Dice()
+        dado = dice()
         original_randint = random.randint
         random.randint = lambda a, b: 4
         resultado = dado.tirada()
@@ -25,7 +25,7 @@ class TestDice(unittest.TestCase):
         random.randint = original_randint
 
     def test_tirada_normal(self):
-        dado = Dice()
+        dado = dice()
         original_randint = random.randint
         valores = [2, 5]
         random.randint = lambda a, b: valores.pop(0)
@@ -35,7 +35,7 @@ class TestDice(unittest.TestCase):
         random.randint = original_randint
 
     def test_obtener_ult_tirada_devuelve_ultima_tirada(self):
-        dado = Dice()
+        dado = dice()
         resultado = dado.tirada()
         self.assertEqual(dado.obtener_ult_tirada(), resultado, "get_last_roll debe devolver la última tirada.")
 
@@ -44,7 +44,7 @@ class TestDice(unittest.TestCase):
         self.assertFalse(dado._ha_tirado, "Al inicio no debería haber tiradas.")
 
     def test_tirada_es_verdadero_despues_de_tirar(self):
-        dado = Dice()
+        dado = dice()
         dado.tirada()  
         resultado = dado.tirada()  
         self.assertTrue(resultado, "Después de tirar debería ser True.")

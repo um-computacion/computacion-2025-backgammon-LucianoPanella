@@ -2,7 +2,7 @@
 #
 import random
 
-class Dice:
+class dice:
     def __init__(self):
         self._ultima_tirada = []
         self._ha_tirado = False
