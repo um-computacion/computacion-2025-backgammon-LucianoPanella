@@ -64,3 +64,82 @@ class tablero:
             len(self.__tablero__[destino]) > 1):
             return False
         return True
+    
+    def reingresar_desde_barra(self, color: str, destino: int):
+        """
+        Permite colocar una ficha desde la barra en una posición de entrada válida.
+        Devuelve True si pudo reingresar, False si no.
+        """
+        if self.__barra__[color] > 0:
+            # Solo puede reingresar si el destino tiene 0 o 1 ficha enemiga
+            if (not self.__tablero__[destino] or
+                self.__tablero__[destino][-1] == color or
+                len(self.__tablero__[destino]) == 1):
+                # Si hay una sola ficha enemiga, la come
+                if (self.__tablero__[destino] and
+                    self.__tablero__[destino][-1] != color and
+                    len(self.__tablero__[destino]) == 1):
+                    color_comido = self.__tablero__[destino].pop()
+                    self.__piezas_comidas__[color_comido] += 1
+                    self.__barra__[color_comido] += 1
+                self.__tablero__[destino].append(color)
+                self.__barra__[color] -= 1
+                return True
+        return False
+
+    def puede_reingresar(self, color: str, dados: list):
+        """
+        Devuelve True si hay al menos una entrada posible desde la barra con los dados actuales.
+        """
+        if self.__barra__[color] == 0:
+            return False
+        # Determina las posiciones de entrada según el color
+        posiciones = []
+        if color == "Blancas":
+            posiciones = [dado - 1 for dado in dados if 0 <= dado - 1 <= 23]
+        else:
+            posiciones = [24 - dado for dado in dados if 0 <= 24 - dado <= 23]
+        for pos in posiciones:
+            if (not self.__tablero__[pos] or
+                self.__tablero__[pos][-1] == color or
+                len(self.__tablero__[pos]) == 1):
+                return True
+        return False
+
+    def todas_en_home(self, color: str):
+        """
+        Devuelve True si todas las fichas del color están en el home (último cuadrante).
+        Para Blancas: posiciones 18-23, para Negras: posiciones 0-5.
+        """
+        if color == "Blancas":
+            home = range(18, 24)
+        else:
+            home = range(0, 6)
+        total = 0
+        for i, punto in enumerate(self.__tablero__):
+            if punto and punto[0] == color:
+                if i not in home:
+                    return False
+                total += len([f for f in punto if f == color])
+        # Además, no debe haber fichas en la barra
+        return self.__barra__[color] == 0
+
+    def sacar_ficha_fuera(self, color: str, origen: int):
+        """
+        Saca una ficha del tablero si está permitido (todas en home y dado lo permite).
+        Devuelve True si pudo sacar, False si no.
+        """
+        if not self.__tablero__[origen]:
+            return False
+        if self.__tablero__[origen][-1] != color:
+            return False
+        if not self.todas_en_home(color):
+            return False
+        self.__tablero__[origen].pop()
+        return True
+
+    def fichas_en_barra(self, color: str):
+        """
+        Devuelve la cantidad de fichas en la barra para ese color.
+        """
+        return self.__barra__[color]
