@@ -40,7 +40,7 @@ class TestDice(unittest.TestCase):
         self.assertEqual(dado.obtener_ult_tirada(), resultado, "get_last_roll debe devolver la última tirada.")
 
     def test_tirada_es_falso_al_inicio(self):
-        dado = Dice()
+        dado = dice()
         self.assertFalse(dado._ha_tirado, "Al inicio no debería haber tiradas.")
 
     def test_tirada_es_verdadero_despues_de_tirar(self):
