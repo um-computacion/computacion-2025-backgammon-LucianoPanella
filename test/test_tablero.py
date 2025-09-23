@@ -64,5 +64,54 @@ class TestTablero(unittest.TestCase):
         self.tablero.colocar_pieza(1, "Negras")
         self.assertFalse(self.tablero.validar_movimiento(0, 1, "Blancas"))  # dos enemigas en destino
 
+    def test_reingresar_desde_barra(self):
+        self.tablero.inicializar_piezas()
+        self.tablero._tablero__barra__ = {"Blancas": 1, "Negras": 0}
+        destino = 1
+        self.assertTrue(self.tablero.reingresar_desde_barra("Blancas", destino))
+        self.assertEqual(self.tablero.fichas_en_barra("Blancas"), 0)
+        self.assertIn("Blancas", self.tablero.mostrar_tablero()[destino])
+
+    def test_no_reingresa_si_barra_vacia(self):
+        self.tablero.inicializar_piezas()
+        self.tablero._tablero__barra__ = {"Blancas": 0, "Negras": 0}
+        self.assertFalse(self.tablero.reingresar_desde_barra("Blancas", 1))
+
+    def test_puede_reingresar(self):
+        self.tablero.inicializar_piezas()
+        self.tablero._tablero__barra__ = {"Blancas": 1, "Negras": 0}
+        self.assertTrue(self.tablero.puede_reingresar("Blancas", [1]))
+        self.tablero.colocar_pieza(0, "Negras")
+        self.tablero.colocar_pieza(0, "Negras")
+        self.assertFalse(self.tablero.puede_reingresar("Blancas", [1]))
+
+    def test_todas_en_home(self):
+        self.tablero.inicializar_piezas()
+        # Mueve todas las blancas al home (posiciones 18-23)
+        for pos in [0, 11, 16, 18]:
+            while self.tablero.mostrar_tablero()[pos]:
+                self.tablero.sacar_pieza(pos)
+        for i in range(15):
+            self.tablero.colocar_pieza(18 + (i % 6), "Blancas")
+        self.tablero._tablero__barra__ = {"Blancas": 0, "Negras": 0}
+        self.assertTrue(self.tablero.todas_en_home("Blancas"))
+
+    def test_sacar_ficha_fuera(self):
+        self.tablero.inicializar_piezas()
+        # Lleva todas las blancas al home
+        for pos in [0, 11, 16, 18]:
+            while self.tablero.mostrar_tablero()[pos]:
+                self.tablero.sacar_pieza(pos)
+        for i in range(15):
+            self.tablero.colocar_pieza(18 + (i % 6), "Blancas")
+        self.tablero._tablero__barra__ = {"Blancas": 0, "Negras": 0}
+        self.assertTrue(self.tablero.sacar_ficha_fuera("Blancas", 18))
+        self.assertEqual(self.tablero.mostrar_tablero()[18].count("Blancas"), 4)
+
+    def test_fichas_en_barra(self):
+        self.tablero.inicializar_piezas()
+        self.tablero._tablero__barra__["Blancas"] = 2
+        self.assertEqual(self.tablero.fichas_en_barra("Blancas"), 2)
+
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main() 
