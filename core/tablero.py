@@ -1,5 +1,5 @@
 #Revisar
-
+from core.jugador import jugador
 class tablero:
     def __init__(self):
         # Inicializa el tablero con 24 posiciones vacías (listas)
@@ -7,6 +7,8 @@ class tablero:
         # Contador de piezas comidas
         self.__piezas_comidas__ = {"Blancas": 0, "Negras": 0}
 
+        self.jugador = jugador() #Llamo a la clase jugador para usar su atributo barra
+        self.__barra__ = self.jugador.__barra__ # Atributo barra llamado desde la clase jugador
     def inicializar_piezas(self):
         # Coloca las piezas en las posiciones iniciales estándar
         self.__tablero__ = [[] for _ in range(24)]

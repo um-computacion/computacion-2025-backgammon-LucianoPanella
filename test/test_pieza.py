@@ -5,7 +5,7 @@ class TestPieza(unittest.TestCase):
 
     def test_init_pieza(self):
         pieza1 = pieza("Blancas")
-        self.assertEqual(pieza1._pieza__color__, "Blancas")
+        self.assertEqual(pieza1.__color__, "Blancas")
 
     def test_str_pieza(self):
         pieza1 = pieza("Negras")

@@ -40,13 +40,13 @@ class TestBackgammon(unittest.TestCase):
     def test_puede_reingresar(self):
         self.game.tablero.inicializar_piezas()
         # Simula una ficha blanca en la barra
-        self.game.tablero._tablero__barra__["Blancas"] = 1
+        self.game.tablero.__barra__["Blancas"] = 1
         self.game.dados_actuales = [1]
         self.assertTrue(self.game.puede_reingresar())
 
     def test_reingresar_desde_barra(self):
         self.game.tablero.inicializar_piezas()
-        self.game.tablero._tablero__barra__["Blancas"] = 1
+        self.game.tablero.__barra__["Blancas"] = 1
         destino = 1
         self.assertTrue(self.game.reingresar_desde_barra(destino))
         self.assertEqual(self.game.tablero.fichas_en_barra("Blancas"), 0)
@@ -54,7 +54,7 @@ class TestBackgammon(unittest.TestCase):
 
     def test_fichas_en_barra(self):
         self.game.tablero.inicializar_piezas()
-        self.game.tablero._tablero__barra__["Blancas"] = 2
+        self.game.tablero.__barra__["Blancas"] = 2
         self.assertEqual(self.game.fichas_en_barra("Blancas"), 2)
 
     def test_todas_en_home(self):
@@ -65,7 +65,7 @@ class TestBackgammon(unittest.TestCase):
                 self.game.tablero.sacar_pieza(pos)
         for i in range(15):
             self.game.tablero.colocar_pieza(18 + (i % 6), "Blancas")
-        self.game.tablero._tablero__barra__["Blancas"] = 0
+        self.game.tablero.__barra__["Blancas"] = 0
         self.assertTrue(self.game.todas_en_home())
 
     def test_sacar_ficha_fuera(self):
@@ -76,16 +76,16 @@ class TestBackgammon(unittest.TestCase):
                 self.game.tablero.sacar_pieza(pos)
         for i in range(15):
             self.game.tablero.colocar_pieza(18 + (i % 6), "Blancas")
-        self.game.tablero._tablero__barra__["Blancas"] = 0
+        self.game.tablero.__barra__["Blancas"] = 0
         self.assertTrue(self.game.sacar_ficha_fuera(18))
         self.assertEqual(self.game.tablero.mostrar_tablero()[18].count("Blancas"), 4)
 
     def test_juego_terminado_y_ganador(self):
-        self.game.jugador1._jugador__fichas_restantes__ = 0
+        self.game.jugador1.__fichas_restantes__ = 0
         self.assertTrue(self.game.juego_terminado())
         self.assertEqual(self.game.obtener_ganador(), "Lucia")
-        self.game.jugador1._jugador__fichas_restantes__ = 1
-        self.game.jugador2._jugador__fichas_restantes__ = 0
+        self.game.jugador1.__fichas_restantes__ = 1
+        self.game.jugador2.__fichas_restantes__ = 0
         self.assertTrue(self.game.juego_terminado())
         self.assertEqual(self.game.obtener_ganador(), "Juan")
 
