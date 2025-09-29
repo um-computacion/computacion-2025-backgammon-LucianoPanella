@@ -16,7 +16,7 @@ class TestBackgammon(unittest.TestCase):
     def test_tirar_dados(self):
         resultado = self.game.tirar_dados()
         self.assertIsInstance(resultado, list)
-        self.assertEqual(len(resultado), 2)
+        self.assertTrue(2 <= len(resultado) <= 4)
         self.assertTrue(all(1 <= d <= 6 for d in resultado))
 
     def test_cambiar_turno(self):
@@ -77,8 +77,9 @@ class TestBackgammon(unittest.TestCase):
         for i in range(15):
             self.game.tablero.colocar_pieza(18 + (i % 6), "Blancas")
         self.game.tablero.__barra__["Blancas"] = 0
+        cantidad_inicial = self.game.tablero.mostrar_tablero()[18].count("Blancas")
         self.assertTrue(self.game.sacar_ficha_fuera(18))
-        self.assertEqual(self.game.tablero.mostrar_tablero()[18].count("Blancas"), 4)
+        self.assertEqual(self.game.tablero.mostrar_tablero()[18].count("Blancas"), cantidad_inicial - 1)
 
     def test_juego_terminado_y_ganador(self):
         self.game.jugador1.__fichas_restantes__ = 0
@@ -103,4 +104,3 @@ class TestBackgammon(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-#Revisar
