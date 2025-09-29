@@ -1,14 +1,13 @@
 #Revisar
-from core.jugador import jugador
 class tablero:
     def __init__(self):
         # Inicializa el tablero con 24 posiciones vacías (listas)
         self.__tablero__ = [[] for _ in range(24)]
         # Contador de piezas comidas
         self.__piezas_comidas__ = {"Blancas": 0, "Negras": 0}
+        # Fichas en la barra para cada color
+        self.__barra__ = {"Blancas": 0, "Negras": 0}
 
-        self.jugador = jugador() #Llamo a la clase jugador para usar su atributo barra
-        self.__barra__ = self.jugador.__barra__ # Atributo barra llamado desde la clase jugador
     def inicializar_piezas(self):
         # Coloca las piezas en las posiciones iniciales estándar
         self.__tablero__ = [[] for _ in range(24)]
@@ -20,6 +19,8 @@ class tablero:
         self.__tablero__[16] = ["Blancas"] * 3
         self.__tablero__[18] = ["Blancas"] * 5
         self.__tablero__[23] = ["Negras"] * 2
+        self.__barra__ = {"Blancas": 0, "Negras": 0}
+        self.__piezas_comidas__ = {"Blancas": 0, "Negras": 0}
 
     def mostrar_tablero(self):
         # Devuelve el estado actual del tablero
@@ -50,6 +51,7 @@ class tablero:
             len(self.__tablero__[destino]) == 1):
             color_comido = self.__tablero__[destino].pop()
             self.__piezas_comidas__[color_comido] += 1
+            self.__barra__[color_comido] += 1  # Agrega la ficha comida a la barra
         self.colocar_pieza(destino, pieza)
 
     def validar_movimiento(self, origen: int, destino: int, color: str):
