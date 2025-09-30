@@ -1,4 +1,5 @@
 #Revisar 
+from core.excepciones import FichaNoDisponible, JugadorYaGano
 
 class jugador:
     def __init__(self, nombre: str, color: str):
@@ -26,10 +27,14 @@ class jugador:
     def sacar_ficha_a_afuera(self):
         # Resta una ficha de las fichas restantes (cuando el jugador saca una ficha del tablero).
         # Devuelve True si pudo sacar una ficha, False si no quedaban
+        if self.gano():
+            raise JugadorYaGano("El jugador ya ha ganado, no puede sacar más fichas.")
+        
         if self.__fichas_restantes__ > 0:
             self.__fichas_restantes__ -= 1
             return True
-        return False
+        else:
+            raise FichaNoDisponible("No hay fichas disponibles para sacar del tablero.")
 
     def __str__(self):
         return (f"Jugador: {self.__nombre__}, Color: {self.__color__}, "

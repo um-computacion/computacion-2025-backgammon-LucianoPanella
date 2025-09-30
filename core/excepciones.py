@@ -55,3 +55,7 @@ class DadoNoDisponible(BackgammonError):
 class TurnoIncorrecto(BackgammonError):
     """No es el turno del jugador que intenta mover."""
     pass
+
+class JuegoYaTerminado(BackgammonError):
+    """Se intentó realizar una acción cuando el juego ya terminó."""
+    pass

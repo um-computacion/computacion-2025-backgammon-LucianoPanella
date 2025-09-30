@@ -1,6 +1,7 @@
 #Revisar
 
 import random
+from core.excepciones import DadosNoTirados, DadoNoDisponible
 
 class dice:
     def __init__(self):
@@ -27,4 +28,18 @@ class dice:
             return True
 
     def obtener_ult_tirada(self):
+        # Devuelve la última tirada realizada
+        if not self._ha_tirado:
+            raise DadosNoTirados("No se han tirado los dados aún. Debe tirar primero.")
         return self._ultima_tirada
+
+    def validar_dado_disponible(self, dado_solicitado, dados_disponibles):
+        # Valida si el dado solicitado está disponible en la lista de dados disponibles
+        if dado_solicitado not in dados_disponibles:
+            raise DadoNoDisponible(f"El dado {dado_solicitado} no está disponible. Dados disponibles: {dados_disponibles}")
+        return True
+
+    def reiniciar_turno(self):
+        # Reinicia el estado para un nuevo turno
+        self._ha_tirado = False
+        self._ultima_tirada = []
