@@ -147,6 +147,12 @@ class Backgammon:
         """
         return self.tablero.mostrar_tablero()
 
+    def estado_tablero_visual(self):
+        """
+        Devuelve el estado visual del tablero (para mostrar en formato gráfico).
+        """
+        return self.tablero.mostrar_tablero_visual()
+
     def estado_jugador(self, jugador=None):
         """
         Devuelve información del jugador actual o del especificado.

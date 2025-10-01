@@ -187,3 +187,157 @@ class tablero:
         Devuelve la cantidad de fichas en la barra para ese color.
         """
         return self.__barra__[color]
+
+    def mostrar_tablero_visual(self):
+        """
+        Devuelve una representación visual del tablero de Backgammon
+        que simula el diseño clásico del juego.
+        """
+        # Obtener el estado actual del tablero
+        tablero = self.__tablero__
+        barra = self.__barra__
+        
+        # Crear la representación visual
+        lineas = []
+        
+        # Línea superior con números de posiciones (12-23)
+        lineas.append("┌─────────────────────────────┬───┬─────────────────────────────┬─────────────┐")
+        numeros_sup = ""
+        for i in range(12, 18):
+            numeros_sup += f"{i:>3}"
+        numeros_sup += " │BAR│ "
+        for i in range(18, 24):
+            numeros_sup += f"{i:>3}"
+        numeros_sup += " │ HOME BLANCAS│"
+        lineas.append(f"│{numeros_sup}│")
+        
+        # Separador
+        lineas.append("├─────────────────────────────┼───┼─────────────────────────────┼─────────────┤")
+        
+        # Calcular fichas sacadas del tablero (para el HOME)
+        fichas_blancas_iniciales = 15
+        fichas_negras_iniciales = 15
+        
+        # Contar fichas que quedan en el tablero y en la barra
+        fichas_blancas_en_juego = barra["Blancas"]
+        fichas_negras_en_juego = barra["Negras"]
+        
+        for pos in tablero:
+            fichas_blancas_en_juego += pos.count("Blancas")
+            fichas_negras_en_juego += pos.count("Negras")
+        
+        # Fichas en HOME (sacadas del tablero)
+        fichas_blancas_home = fichas_blancas_iniciales - fichas_blancas_en_juego
+        fichas_negras_home = fichas_negras_iniciales - fichas_negras_en_juego
+        
+        # Mostrar fichas en posiciones superiores (12-23) - máximo 5 filas
+        for fila in range(5):
+            linea_fichas = ""
+            # Posiciones 12-17
+            for i in range(12, 18):
+                fichas_en_pos = tablero[i]
+                if len(fichas_en_pos) > fila:
+                    linea_fichas += f" {fichas_en_pos[fila][0]} "
+                else:
+                    linea_fichas += "   "
+            
+            # Barra (mostrar fichas en la barra)
+            barra_display = ""
+            total_barra = barra["Blancas"] + barra["Negras"]
+            if total_barra > fila:
+                if barra["Blancas"] > fila:
+                    barra_display = "B"
+                elif barra["Negras"] > fila - barra["Blancas"]:
+                    barra_display = "N"
+                else:
+                    barra_display = " "
+            else:
+                barra_display = " "
+            linea_fichas += f" │ {barra_display} │ "
+            
+            # Posiciones 18-23
+            for i in range(18, 24):
+                fichas_en_pos = tablero[i]
+                if len(fichas_en_pos) > fila:
+                    linea_fichas += f" {fichas_en_pos[fila][0]} "
+                else:
+                    linea_fichas += "   "
+            
+            # HOME BLANCAS (mostrar fichas sacadas)
+            home_display = ""
+            if fichas_blancas_home > fila:
+                home_display = f"    B:{fichas_blancas_home:2}    "
+            else:
+                home_display = "             "
+            linea_fichas += f" │{home_display}│"
+            
+            lineas.append(f"│{linea_fichas}│")
+        
+        # Separador central
+        lineas.append("├─────────────────────────────┼───┼─────────────────────────────┼─────────────┤")
+        
+        # Mostrar fichas en posiciones inferiores (0-11) - máximo 5 filas (invertido)
+        for fila in range(4, -1, -1):
+            linea_fichas = ""
+            # Posiciones 11-6 (en orden inverso)
+            for i in range(11, 5, -1):
+                fichas_en_pos = tablero[i]
+                if len(fichas_en_pos) > fila:
+                    linea_fichas += f" {fichas_en_pos[fila][0]} "
+                else:
+                    linea_fichas += "   "
+            
+            # Barra (repetir la lógica)
+            barra_display = ""
+            total_barra = barra["Blancas"] + barra["Negras"]
+            if total_barra > (4-fila):
+                if barra["Blancas"] > (4-fila):
+                    barra_display = "B"
+                elif barra["Negras"] > (4-fila) - barra["Blancas"]:
+                    barra_display = "N"
+                else:
+                    barra_display = " "
+            else:
+                barra_display = " "
+            linea_fichas += f" │ {barra_display} │ "
+            
+            # Posiciones 5-0 (en orden inverso)
+            for i in range(5, -1, -1):
+                fichas_en_pos = tablero[i]
+                if len(fichas_en_pos) > fila:
+                    linea_fichas += f" {fichas_en_pos[fila][0]} "
+                else:
+                    linea_fichas += "   "
+            
+            # HOME NEGRAS (mostrar fichas sacadas)
+            home_display = ""
+            if fichas_negras_home > (4-fila):
+                home_display = f"    N:{fichas_negras_home:2}    "
+            else:
+                home_display = "             "
+            linea_fichas += f" │{home_display}│"
+            
+            lineas.append(f"│{linea_fichas}│")
+        
+        # Separador
+        lineas.append("├─────────────────────────────┼───┼─────────────────────────────┼─────────────┤")
+        
+        # Línea inferior con números de posiciones (0-11)
+        numeros_inf = ""
+        for i in range(11, 5, -1):
+            numeros_inf += f"{i:>3}"
+        numeros_inf += " │   │ "
+        for i in range(5, -1, -1):
+            numeros_inf += f"{i:>3}"
+        numeros_inf += " │ HOME NEGRAS │"
+        lineas.append(f"│{numeros_inf}│")
+        
+        # Línea final
+        lineas.append("└─────────────────────────────┴───┴─────────────────────────────┴─────────────┘")
+        
+        # Información adicional
+        lineas.append(f"\nFichas en barra - Blancas: {barra['Blancas']}, Negras: {barra['Negras']}")
+        lineas.append(f"Fichas comidas - Blancas: {self.__piezas_comidas__['Blancas']}, Negras: {self.__piezas_comidas__['Negras']}")
+        lineas.append(f"Puntos ganados - Blancas: {fichas_blancas_home}, Negras: {fichas_negras_home}")
+        
+        return "\n".join(lineas)
