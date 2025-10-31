@@ -66,3 +66,25 @@ class TurnoIncorrecto(BackgammonError):
 class JuegoYaTerminado(BackgammonError):
     """Se intentó realizar una acción cuando el juego ya terminó."""
     pass
+
+# Excepciones para CLI / Entrada de usuario
+
+class EntradaInvalida(BackgammonError):
+    """La entrada recibida no cumple el formato o rango esperado."""
+    pass
+
+class OpcionInvalida(BackgammonError):
+    """La opción de menú seleccionada no es válida en este contexto."""
+    pass
+
+class DebeReingresarPrimero(BackgammonError):
+    """El jugador tiene fichas en barra y debe reingresar antes de mover otras fichas."""
+    pass
+
+class NoHayReingresoPosible(BackgammonError):
+    """Con los dados disponibles no existe ninguna entrada válida desde la barra."""
+    pass
+
+class SinMovimientosDisponibles(BackgammonError):
+    """No existe ningún movimiento legal con los dados disponibles."""
+    pass
