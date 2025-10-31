@@ -1,46 +1,51 @@
-#Almacen de Variables Globales fijas relacionadas con el aspecto visual 
-# y funcional de los elementos UI
+"""Constantes de la UI Pygame (dimensiones, colores y placeholders)."""
 
-import pygame
+# Dimensiones por defecto de la ventana del juego
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 600
 
-# Dimensiones de pantalla
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 700
-FPS = 60
+# Layout de BoardView
+UI_MARGIN = 40
+UI_MESSAGE_BAR_HEIGHT = 60
+UI_BOTTOM_LABELS_BAND = 50
+UI_TOP_LABELS_BAND = 26
+UI_OFF_TRAY_WIDTH = 70
+UI_MAX_VISIBLE_STACK = 5
+UI_STACK_SPACING_FACTOR = 1.9
 
-# Colores
-COLORS = {
-    'BACKGROUND': (139, 69, 19),      # Marrón tablero
-    'BOARD_DARK': (101, 67, 33),     # Triángulos oscuros
-    'BOARD_LIGHT': (222, 184, 135),  # Triángulos claros
-    'BORDER': (0, 0, 0),             # Bordes negros
-    'WHITE_PIECE': (255, 255, 255),   # Fichas blancas
-    'BLACK_PIECE': (50, 50, 50),      # Fichas negras
-    'SELECTED': (255, 255, 0),        # Pieza seleccionada
-    'VALID_MOVE': (0, 255, 0),        # Movimiento válido
-    'TEXT': (255, 255, 255),          # Texto blanco
-    'BUTTON': (70, 130, 180),         # Botones
-    'BUTTON_HOVER': (100, 149, 237),  # Botón hover
-    'DICE_BG': (255, 255, 255),       # Fondo dados
-    'DICE_DOTS': (0, 0, 0),           # Puntos dados
-}
+# Dimensiones de la pantalla de nombres
+NAME_SCREEN_WIDTH = 720
+NAME_SCREEN_HEIGHT = 360
 
-# Dimensiones del tablero
-BOARD_MARGIN = 50
-TRIANGLE_WIDTH = 50
-TRIANGLE_HEIGHT = 150
-PIECE_RADIUS = 20
-PIECE_SPACING = 5
+# Placeholders (no permitidos como nombres válidos)
+PLACEHOLDER_WHITE = "Jugador 1"
+PLACEHOLDER_BLACK = "Jugador 2"
 
-# Posiciones específicas
-BAR_WIDTH = 60
-HOME_WIDTH = 80
-DICE_SIZE = 40
+# Tamaño de dados en la barra central
+DICE_SIZE = 32
+DICE_GAP = 10
 
-# Fuentes
-FONT_SIZES = {
-    'SMALL': 16,
-    'MEDIUM': 24,
-    'LARGE': 32,
-}
+# Colores útiles
+COLOR_BTN_RESTART = (60, 160, 80)
+COLOR_BTN_EXIT = (160, 60, 60)
+COLOR_ERROR_TEXT = (180, 40, 40)
+COLOR_INPUT_ACTIVE = (50, 120, 200)
+COLOR_INPUT_INACTIVE = (120, 120, 120)
+COLOR_BG_NAME = (235, 220, 190)
+COLOR_FIELD_BG = (255, 255, 255)
+
+# Colores del tablero
+COLOR_BOARD_BG = (240, 220, 180)  # BEIGE
+COLOR_TRIANGLE_LIGHT = (210, 160, 100)
+COLOR_TRIANGLE_DARK = (140, 90, 40)
+COLOR_BLACK = (0, 0, 0)
+COLOR_WHITE = (255, 255, 255)
+COLOR_GRAY = (50, 50, 50)
+COLOR_BAR_BG = (205, 186, 150)
+COLOR_TRAY_BG = (205, 186, 150)
+COLOR_MSG_BAR_BG = (220, 200, 160)
+COLOR_TURN_INDICATOR = (0, 180, 0)
+COLOR_HL_DEST = (0, 120, 0, 110)  # RGBA
+COLOR_HL_SEL = (255, 215, 0, 200)  # RGBA
+COLOR_HL_SEL_BORDER = (255, 215, 0, 150)  # RGBA
 
