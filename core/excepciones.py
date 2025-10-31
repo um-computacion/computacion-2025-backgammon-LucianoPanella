@@ -1,3 +1,4 @@
+#FINALIZADO#
 """
 Excepciones del dominio Backgammon segregadas en un módulo dedicado.
 Razón: evitar mezclar lógica de reglas/casos de uso con definiciones de errores, mejorando cohesión y reusabilidad.

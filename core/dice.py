@@ -1,3 +1,4 @@
+#FINALIZADO#
 import random
 from core.excepciones import DadosNoTirados, DadoNoDisponible
 

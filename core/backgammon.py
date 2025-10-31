@@ -1,3 +1,4 @@
+#FINALIZADO#
 # Backgammon: clase principal que coordina el flujo del juego.
 # Integra tablero, jugadores y dados, y gestiona las reglas principales.
 

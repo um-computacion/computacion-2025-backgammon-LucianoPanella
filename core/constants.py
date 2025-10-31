@@ -1,3 +1,4 @@
+#FINALIZADO#
 """
 Constantes del juego Backgammon.
 
