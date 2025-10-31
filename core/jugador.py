@@ -1,12 +1,13 @@
 #Revisar 
 from core.excepciones import FichaNoDisponible, JugadorYaGano
+from core.constants import INITIAL_CHECKERS
 
 class jugador:
     def __init__(self, nombre: str, color: str):
         self.__nombre__ = nombre
         self.__color__ = color
-        self.__fichas__ = 15 # Total de fichas que tiene el jugador al inicio 
-        self.__fichas_restantes__ = 15 # Fichas que le quedan por sacar del tablero (para ganar)
+        self.__fichas__ = INITIAL_CHECKERS  # Total de fichas que tiene el jugador al inicio 
+        self.__fichas_restantes__ = INITIAL_CHECKERS  # Fichas que le quedan por sacar del tablero (para ganar)
 
     def mostrar_fichas_restantes(self):
         # Devuelve la cantidad de fichas que le quedan al jugador por sacar del tablero
@@ -26,10 +27,10 @@ class jugador:
 
     def sacar_ficha_a_afuera(self):
         # Resta una ficha de las fichas restantes (cuando el jugador saca una ficha del tablero).
-        # Devuelve True si pudo sacar una ficha, False si no quedaban
+        
+        # Devuelve True si pudo sacar una ficha.
         if self.gano():
             raise JugadorYaGano("El jugador ya ha ganado, no puede sacar más fichas.")
-        
         if self.__fichas_restantes__ > 0:
             self.__fichas_restantes__ -= 1
             return True

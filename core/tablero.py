@@ -1,28 +1,37 @@
 #Revisar
-from core.excepciones import (MovimientoInvalido, PosicionFueraDeRango, OrigenSinFicha, DestinoBloqueado, NoPuedeReingresar, NoPuedeSacarFicha)
+from core.excepciones import (
+    MovimientoInvalido,
+    PosicionFueraDeRango,
+    OrigenSinFicha,
+    DestinoBloqueado,
+    NoPuedeReingresar,
+    NoPuedeSacarFicha,
+)
+from core.constants import (
+    BLANCAS,
+    NEGRAS,
+    BOARD_POINTS,
+    START_SETUP,
+    HOME_RANGE,
+    MAX_STACK_DISPLAY_ROWS,
+)
 
 class tablero:
     def __init__(self):
         # Inicializa el tablero con 24 posiciones vacías (listas)
-        self.__tablero__ = [[] for _ in range(24)]
+        self.__tablero__ = [[] for _ in range(BOARD_POINTS)]
         # Contador de piezas comidas
-        self.__piezas_comidas__ = {"Blancas": 0, "Negras": 0}
+        self.__piezas_comidas__ = {BLANCAS: 0, NEGRAS: 0}
         # Fichas en la barra para cada color
-        self.__barra__ = {"Blancas": 0, "Negras": 0}
+        self.__barra__ = {BLANCAS: 0, NEGRAS: 0}
 
     def inicializar_piezas(self):
         # Coloca las piezas en las posiciones iniciales estándar
-        self.__tablero__ = [[] for _ in range(24)]
-        self.__tablero__[0] = ["Blancas"] * 2
-        self.__tablero__[5] = ["Negras"] * 5
-        self.__tablero__[7] = ["Negras"] * 3
-        self.__tablero__[11] = ["Blancas"] * 5
-        self.__tablero__[12] = ["Negras"] * 5
-        self.__tablero__[16] = ["Blancas"] * 3
-        self.__tablero__[18] = ["Blancas"] * 5
-        self.__tablero__[23] = ["Negras"] * 2
-        self.__barra__ = {"Blancas": 0, "Negras": 0}
-        self.__piezas_comidas__ = {"Blancas": 0, "Negras": 0}
+        self.__tablero__ = [[] for _ in range(BOARD_POINTS)]
+        for pos, (color, cantidad) in START_SETUP.items():
+            self.__tablero__[pos] = [color] * cantidad
+        self.__barra__ = {BLANCAS: 0, NEGRAS: 0}
+        self.__piezas_comidas__ = {BLANCAS: 0, NEGRAS: 0}
 
     def mostrar_tablero(self):
         # Devuelve el estado actual del tablero
@@ -32,68 +41,88 @@ class tablero:
         # Devuelve el diccionario de piezas comidas
         return self.__piezas_comidas__
 
+    # Encapsulamiento: getters/setters controlados
+    def fichas_en_barra(self, color: str):
+        """
+        Devuelve la cantidad de fichas en la barra para ese color.
+        """
+        return self.__barra__[color]
+
+    def set_fichas_en_barra(self, color: str, cantidad: int):
+        """
+        Establece la cantidad de fichas en la barra para un color (uso en tests/setup).
+        """
+        if cantidad < 0:
+            raise ValueError("La cantidad en la barra no puede ser negativa.")
+        self.__barra__[color] = cantidad
+
     def sacar_pieza(self, posicion: int):
         # Saca una pieza de la posición indicada (si hay)
-        if posicion < 0 or posicion > 23:
-            raise PosicionFueraDeRango(f"La posición {posicion} está fuera del tablero (0-23).")
         
+        if posicion < 0 or posicion > BOARD_POINTS - 1:
+            raise PosicionFueraDeRango(f"La posición {posicion} está fuera del tablero (0-23).")
         if self.__tablero__[posicion]:
             return self.__tablero__[posicion].pop()
         else:
+            # Mantener excepción específica del dominio para casos de uso directos.
             raise OrigenSinFicha(f"No hay fichas en la posición {posicion}.")
 
     def colocar_pieza(self, posicion: int, color: str):
         # Coloca una pieza del color dado en la posición indicada
-        if posicion < 0 or posicion > 23:
+        if posicion < 0 or posicion > BOARD_POINTS - 1:
             raise PosicionFueraDeRango(f"La posición {posicion} está fuera del tablero (0-23).")
         
         self.__tablero__[posicion].append(color)
 
     def mover_pieza(self, origen: int, destino: int):
         # Mueve una pieza del origen al destino si es posible
-        if origen < 0 or origen > 23 or destino < 0 or destino > 23:
+       
+        if origen < 0 or origen > BOARD_POINTS - 1 or destino < 0 or destino > BOARD_POINTS - 1:
             raise PosicionFueraDeRango("Las posiciones deben estar entre 0 y 23.")
-        
         if not self.__tablero__[origen]:
             raise OrigenSinFicha(f"No hay piezas para mover en la posición {origen}.")
-        
+
         pieza = self.sacar_pieza(origen)
-        
+
         # Verifica si el destino está bloqueado por el rival
-        if (self.__tablero__[destino] and
-            self.__tablero__[destino][-1] != pieza and
-            len(self.__tablero__[destino]) > 1):
+        if (
+            self.__tablero__[destino]
+            and self.__tablero__[destino][-1] != pieza
+            and len(self.__tablero__[destino]) > 1
+        ):
             # Devolver la pieza al origen si no se puede mover
             self.__tablero__[origen].append(pieza)
             raise DestinoBloqueado(f"La posición {destino} está bloqueada por fichas enemigas.")
-        
+
         # Si hay una sola pieza enemiga en destino, la come
-        if (self.__tablero__[destino] and
-            self.__tablero__[destino][-1] != pieza and
-            len(self.__tablero__[destino]) == 1):
+        if (
+            self.__tablero__[destino]
+            and self.__tablero__[destino][-1] != pieza
+            and len(self.__tablero__[destino]) == 1
+        ):
             color_comido = self.__tablero__[destino].pop()
             self.__piezas_comidas__[color_comido] += 1
             self.__barra__[color_comido] += 1  # Agrega la ficha comida a la barra
-        
+
         self.colocar_pieza(destino, pieza)
 
     def validar_movimiento(self, origen: int, destino: int, color: str):
         # Valida si un movimiento es posible según las reglas básicas
-        if origen < 0 or origen > 23 or destino < 0 or destino > 23:
-            raise PosicionFueraDeRango("Las posiciones deben estar entre 0 y 23.")
         
+        # Razón: Las excepciones representan condiciones inválidas del dominio, no simples retornos booleanos.
+        if origen < 0 or origen > BOARD_POINTS - 1 or destino < 0 or destino > BOARD_POINTS - 1:
+            raise PosicionFueraDeRango("Las posiciones deben estar entre 0 y 23.")
         if not self.__tablero__[origen]:
             raise OrigenSinFicha(f"No hay fichas en la posición {origen}.")
-        
         if self.__tablero__[origen][-1] != color:
             raise MovimientoInvalido(f"La ficha en posición {origen} no pertenece al jugador {color}.")
-        
         # No puede mover a una posición con 2 o más piezas enemigas
-        if (self.__tablero__[destino] and
-            self.__tablero__[destino][-1] != color and
-            len(self.__tablero__[destino]) > 1):
+        if (
+            self.__tablero__[destino]
+            and self.__tablero__[destino][-1] != color
+            and len(self.__tablero__[destino]) > 1
+        ):
             raise DestinoBloqueado(f"La posición {destino} está bloqueada por fichas enemigas.")
-        
         return True
     
     def reingresar_desde_barra(self, color: str, destino: int):
@@ -101,26 +130,29 @@ class tablero:
         Permite colocar una ficha desde la barra en una posición de entrada válida.
         Devuelve True si pudo reingresar, False si no.
         """
-        if destino < 0 or destino > 23:
+       
+        if destino < 0 or destino > BOARD_POINTS - 1:
             raise PosicionFueraDeRango(f"La posición {destino} está fuera del tablero (0-23).")
-        
         if self.__barra__[color] <= 0:
             raise NoPuedeReingresar(f"No hay fichas de color {color} en la barra para reingresar.")
-        
         # Solo puede reingresar si el destino tiene 0 o 1 ficha enemiga
-        if (self.__tablero__[destino] and
-            self.__tablero__[destino][-1] != color and
-            len(self.__tablero__[destino]) > 1):
-            raise DestinoBloqueado(f"No se puede reingresar en posición {destino}: está bloqueada por fichas enemigas.")
-        
-        # Si hay una sola ficha enemiga, la come
-        if (self.__tablero__[destino] and
-            self.__tablero__[destino][-1] != color and
-            len(self.__tablero__[destino]) == 1):
+        if (
+            self.__tablero__[destino]
+            and self.__tablero__[destino][-1] != color
+            and len(self.__tablero__[destino]) > 1
+        ):
+            raise DestinoBloqueado(
+                f"No se puede reingresar en posición {destino}: está bloqueada por fichas enemigas."
+            )
+        # Si hay una sola pieza enemiga, la come
+        if (
+            self.__tablero__[destino]
+            and self.__tablero__[destino][-1] != color
+            and len(self.__tablero__[destino]) == 1
+        ):
             color_comido = self.__tablero__[destino].pop()
             self.__piezas_comidas__[color_comido] += 1
             self.__barra__[color_comido] += 1
-        
         self.__tablero__[destino].append(color)
         self.__barra__[color] -= 1
         return True
@@ -133,10 +165,10 @@ class tablero:
             return False
         # Determina las posiciones de entrada según el color
         posiciones = []
-        if color == "Blancas":
-            posiciones = [dado - 1 for dado in dados if 0 <= dado - 1 <= 23]
+        if color == BLANCAS:
+            posiciones = [dado - 1 for dado in dados if 0 <= dado - 1 <= BOARD_POINTS - 1]
         else:
-            posiciones = [24 - dado for dado in dados if 0 <= 24 - dado <= 23]
+            posiciones = [BOARD_POINTS - dado for dado in dados if 0 <= BOARD_POINTS - dado <= BOARD_POINTS - 1]
         for pos in posiciones:
             if (not self.__tablero__[pos] or
                 self.__tablero__[pos][-1] == color or
@@ -149,10 +181,10 @@ class tablero:
         Devuelve True si todas las fichas del color están en el home (último cuadrante).
         Para Blancas: posiciones 18-23, para Negras: posiciones 0-5.
         """
-        if color == "Blancas":
-            home = range(18, 24)
+        if color == BLANCAS:
+            home = HOME_RANGE[BLANCAS]
         else:
-            home = range(0, 6)
+            home = HOME_RANGE[NEGRAS]
         total = 0
         for i, punto in enumerate(self.__tablero__):
             if punto and punto[0] == color:
@@ -167,26 +199,21 @@ class tablero:
         Saca una ficha del tablero si está permitido (todas en home y dado lo permite).
         Devuelve True si pudo sacar, False si no.
         """
-        if origen < 0 or origen > 23:
+    # Lanzar excepciones para representar condiciones inválidas del dominio.
+        if origen < 0 or origen > BOARD_POINTS - 1:
             raise PosicionFueraDeRango(f"La posición {origen} está fuera del tablero (0-23).")
-        
         if not self.__tablero__[origen]:
             raise OrigenSinFicha(f"No hay fichas en la posición {origen} para sacar.")
-        
         if self.__tablero__[origen][-1] != color:
             raise MovimientoInvalido(f"La ficha en posición {origen} no pertenece al jugador {color}.")
-        
         if not self.todas_en_home(color):
-            raise NoPuedeSacarFicha(f"No se puede sacar fichas: no todas las fichas de {color} están en el home.")
-        
+            raise NoPuedeSacarFicha(
+                f"No se puede sacar fichas: no todas las fichas de {color} están en el home."
+            )
         self.__tablero__[origen].pop()
         return True
 
-    def fichas_en_barra(self, color: str):
-        """
-        Devuelve la cantidad de fichas en la barra para ese color.
-        """
-        return self.__barra__[color]
+    # La función fichas_en_barra fue movida arriba con la sección de getters/setters.
 
     def mostrar_tablero_visual(self):
         """
@@ -196,10 +223,10 @@ class tablero:
         # Obtener el estado actual del tablero
         tablero = self.__tablero__
         barra = self.__barra__
-        
+
         # Crear la representación visual
         lineas = []
-        
+
         # Línea superior con números de posiciones (12-23)
         lineas.append("┌─────────────────────────────┬───┬─────────────────────────────┬─────────────┐")
         numeros_sup = ""
@@ -210,28 +237,28 @@ class tablero:
             numeros_sup += f"{i:>3}"
         numeros_sup += " │ HOME BLANCAS│"
         lineas.append(f"│{numeros_sup}│")
-        
+
         # Separador
         lineas.append("├─────────────────────────────┼───┼─────────────────────────────┼─────────────┤")
-        
+
         # Calcular fichas sacadas del tablero (para el HOME)
         fichas_blancas_iniciales = 15
         fichas_negras_iniciales = 15
-        
+
         # Contar fichas que quedan en el tablero y en la barra
         fichas_blancas_en_juego = barra["Blancas"]
         fichas_negras_en_juego = barra["Negras"]
-        
+
         for pos in tablero:
             fichas_blancas_en_juego += pos.count("Blancas")
             fichas_negras_en_juego += pos.count("Negras")
-        
+
         # Fichas en HOME (sacadas del tablero)
         fichas_blancas_home = fichas_blancas_iniciales - fichas_blancas_en_juego
         fichas_negras_home = fichas_negras_iniciales - fichas_negras_en_juego
-        
+
         # Mostrar fichas en posiciones superiores (12-23) - máximo 5 filas
-        for fila in range(5):
+        for fila in range(MAX_STACK_DISPLAY_ROWS):
             linea_fichas = ""
             # Posiciones 12-17
             for i in range(12, 18):
@@ -240,7 +267,7 @@ class tablero:
                     linea_fichas += f" {fichas_en_pos[fila][0]} "
                 else:
                     linea_fichas += "   "
-            
+
             # Barra (mostrar fichas en la barra)
             barra_display = ""
             total_barra = barra["Blancas"] + barra["Negras"]
@@ -254,7 +281,7 @@ class tablero:
             else:
                 barra_display = " "
             linea_fichas += f" │ {barra_display} │ "
-            
+
             # Posiciones 18-23
             for i in range(18, 24):
                 fichas_en_pos = tablero[i]
@@ -262,7 +289,7 @@ class tablero:
                     linea_fichas += f" {fichas_en_pos[fila][0]} "
                 else:
                     linea_fichas += "   "
-            
+
             # HOME BLANCAS (mostrar fichas sacadas)
             home_display = ""
             if fichas_blancas_home > fila:
@@ -270,14 +297,14 @@ class tablero:
             else:
                 home_display = "             "
             linea_fichas += f" │{home_display}│"
-            
+
             lineas.append(f"│{linea_fichas}│")
-        
+
         # Separador central
         lineas.append("├─────────────────────────────┼───┼─────────────────────────────┼─────────────┤")
-        
+
         # Mostrar fichas en posiciones inferiores (0-11) - máximo 5 filas (invertido)
-        for fila in range(4, -1, -1):
+        for fila in range(MAX_STACK_DISPLAY_ROWS - 1, -1, -1):
             linea_fichas = ""
             # Posiciones 11-6 (en orden inverso)
             for i in range(11, 5, -1):
@@ -286,7 +313,7 @@ class tablero:
                     linea_fichas += f" {fichas_en_pos[fila][0]} "
                 else:
                     linea_fichas += "   "
-            
+
             # Barra (repetir la lógica)
             barra_display = ""
             total_barra = barra["Blancas"] + barra["Negras"]
@@ -300,7 +327,7 @@ class tablero:
             else:
                 barra_display = " "
             linea_fichas += f" │ {barra_display} │ "
-            
+
             # Posiciones 5-0 (en orden inverso)
             for i in range(5, -1, -1):
                 fichas_en_pos = tablero[i]
@@ -308,20 +335,21 @@ class tablero:
                     linea_fichas += f" {fichas_en_pos[fila][0]} "
                 else:
                     linea_fichas += "   "
-            
+
             # HOME NEGRAS (mostrar fichas sacadas)
             home_display = ""
             if fichas_negras_home > (4-fila):
                 home_display = f"    N:{fichas_negras_home:2}    "
+                
             else:
                 home_display = "             "
             linea_fichas += f" │{home_display}│"
-            
+
             lineas.append(f"│{linea_fichas}│")
-        
+
         # Separador
         lineas.append("├─────────────────────────────┼───┼─────────────────────────────┼─────────────┤")
-        
+
         # Línea inferior con números de posiciones (0-11)
         numeros_inf = ""
         for i in range(11, 5, -1):
@@ -331,13 +359,13 @@ class tablero:
             numeros_inf += f"{i:>3}"
         numeros_inf += " │ HOME NEGRAS │"
         lineas.append(f"│{numeros_inf}│")
-        
+
         # Línea final
         lineas.append("└─────────────────────────────┴───┴─────────────────────────────┴─────────────┘")
-        
+
         # Información adicional
         lineas.append(f"\nFichas en barra - Blancas: {barra['Blancas']}, Negras: {barra['Negras']}")
         lineas.append(f"Fichas comidas - Blancas: {self.__piezas_comidas__['Blancas']}, Negras: {self.__piezas_comidas__['Negras']}")
         lineas.append(f"Puntos ganados - Blancas: {fichas_blancas_home}, Negras: {fichas_negras_home}")
-        
+
         return "\n".join(lineas)

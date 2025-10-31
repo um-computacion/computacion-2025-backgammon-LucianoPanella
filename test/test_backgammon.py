@@ -1,6 +1,11 @@
 import unittest
 from core.backgammon import Backgammon
-from core.excepciones import TurnoIncorrecto, JuegoYaTerminado
+from core.excepciones import (
+    TurnoIncorrecto,
+    JuegoYaTerminado,
+    OrigenSinFicha,
+    NoPuedeSacarFicha,
+)
 
 class TestBackgammon(unittest.TestCase):
 
@@ -52,8 +57,9 @@ class TestBackgammon(unittest.TestCase):
         self.assertEqual(len(self.game.tablero.mostrar_tablero()[destino]), 1)
 
     def test_mover_pieza_invalido(self):
-        # Verifica movimiento inválido devuelve False
-        self.assertFalse(self.game.mover(3, 4))
+        # Verifica que movimiento inválido lanza excepción de dominio
+        with self.assertRaises(OrigenSinFicha):
+            self.game.mover(3, 4)
 
     def test_mover_juego_terminado(self):
         # Verifica excepción al mover con juego terminado - Línea 55
@@ -150,10 +156,11 @@ class TestBackgammon(unittest.TestCase):
             self.game.sacar_ficha_fuera(18)
 
     def test_sacar_ficha_fuera_invalido(self):
-        # Verifica que devuelve False cuando no se puede sacar - Línea 110
+        # Verifica que lanza excepción cuando no se puede sacar - Línea 110
         self.game.tablero.inicializar_piezas()
         # No todas están en home, no se puede sacar
-        self.assertFalse(self.game.sacar_ficha_fuera(18))
+        with self.assertRaises(NoPuedeSacarFicha):
+            self.game.sacar_ficha_fuera(18)
 
     def test_verificar_fin_juego_jugador1_gana(self):
         # Verifica detección de fin de juego cuando jugador1 gana - Línea 119
