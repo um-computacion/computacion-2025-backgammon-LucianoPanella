@@ -1,0 +1,95 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "py-compile-ui",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"-m",
+				"py_compile",
+				"pygame_ui/board_view.py",
+				"pygame_ui/game_ui.py",
+				"pygame_ui/main_pygame.py",
+				"pygame_ui/dice_renderer.py",
+				"pygame_ui/events_handler.py",
+				"pygame_ui/constants.py"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "py-compile-ui",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"-m",
+				"py_compile",
+				"pygame_ui/board_view.py",
+				"pygame_ui/game_ui.py",
+				"pygame_ui/main_pygame.py",
+				"pygame_ui/dice_renderer.py",
+				"pygame_ui/events_handler.py",
+				"pygame_ui/constants.py"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "py-compile-ui",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"-m",
+				"py_compile",
+				"pygame_ui/board_view.py",
+				"pygame_ui/game_ui.py",
+				"pygame_ui/main_pygame.py",
+				"pygame_ui/dice_renderer.py",
+				"pygame_ui/events_handler.py",
+				"pygame_ui/constants.py"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "py-compile-ui",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"-m",
+				"py_compile",
+				"pygame_ui/board_view.py",
+				"pygame_ui/game_ui.py",
+				"pygame_ui/main_pygame.py",
+				"pygame_ui/dice_renderer.py",
+				"pygame_ui/events_handler.py",
+				"pygame_ui/constants.py"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "py-compile-ui",
+			"type": "shell",
+			"command": "python",
+			"args": [
+				"-m",
+				"py_compile",
+				"pygame_ui/board_view.py",
+				"pygame_ui/game_ui.py",
+				"pygame_ui/main_pygame.py",
+				"pygame_ui/dice_renderer.py",
+				"pygame_ui/events_handler.py",
+				"pygame_ui/constants.py"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}
