@@ -1,8 +1,15 @@
+"""
+Excepciones del dominio Backgammon segregadas en un módulo dedicado.
+Razón: evitar mezclar lógica de reglas/casos de uso con definiciones de errores, mejorando cohesión y reusabilidad.
+"""
+
 #Excepcion BackGammon
 
 class BackgammonError(Exception):
-    """Excepción base para el juego Backgammon."""
-    pass
+    """Excepción base para el juego Backgammon con mensaje accesible."""
+    def __init__(self, message: str = ""):
+        super().__init__(message)
+        self.message = message
 
 #Excepciones para Tablero
 

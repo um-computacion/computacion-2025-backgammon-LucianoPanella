@@ -1,5 +1,6 @@
 import unittest
 from core.jugador import jugador
+from core.excepciones import JugadorYaGano, FichaNoDisponible
 
 class TestJugador(unittest.TestCase):
 
@@ -18,8 +19,9 @@ class TestJugador(unittest.TestCase):
         for _ in range(14):
             self.jugador.sacar_ficha_a_afuera()
         self.assertEqual(self.jugador.mostrar_fichas_restantes(), 0)
-        # Intentar sacar cuando ya no quedan
-        self.assertFalse(self.jugador.sacar_ficha_a_afuera())
+        # Intentar sacar cuando ya no quedan debe lanzar JugadorYaGano
+        with self.assertRaises(JugadorYaGano):
+            self.jugador.sacar_ficha_a_afuera()
 
     def test_gano(self):
         self.assertFalse(self.jugador.gano())

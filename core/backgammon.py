@@ -7,14 +7,30 @@ from core.dice import dice
 from core.excepciones import TurnoIncorrecto, JuegoYaTerminado
 
 class Backgammon:
-    def __init__(self, nombre_jugador1, color_jugador1, nombre_jugador2, color_jugador2):
+    def __init__(
+        self,
+        nombre_jugador1,
+        color_jugador1,
+        nombre_jugador2,
+        color_jugador2,
+        *,
+        tablero_inst=None,
+        dados_inst=None,
+        jugador1_inst=None,
+        jugador2_inst=None,
+    ):
         """
         Inicializa el juego de Backgammon con dos jugadores, el tablero y los dados.
+
+    Dependency Inversion + Inyección de Dependencias:
+        - Se aceptan instancias para tablero, dados y jugadores vía parámetros opcionales.
+        - Razón: desacoplar Backgammon de implementaciones concretas y facilitar testing.
         """
-        self.tablero = tablero()
-        self.jugador1 = jugador(nombre_jugador1, color_jugador1)
-        self.jugador2 = jugador(nombre_jugador2, color_jugador2)
-        self.dados = dice()
+        # Usamos instancias inyectadas con valores por defecto.
+        self.tablero = tablero_inst if tablero_inst is not None else tablero()
+        self.jugador1 = jugador1_inst if jugador1_inst is not None else jugador(nombre_jugador1, color_jugador1)
+        self.jugador2 = jugador2_inst if jugador2_inst is not None else jugador(nombre_jugador2, color_jugador2)
+        self.dados = dados_inst if dados_inst is not None else dice()
         self.turno_actual = self.jugador1  # Por defecto empieza jugador1
         self.tablero.inicializar_piezas()
         self.dados_actuales = []
@@ -49,18 +65,19 @@ class Backgammon:
     def mover(self, origen, destino):
         """
         Intenta mover una pieza del jugador actual desde 'origen' a 'destino'.
-        Devuelve True si el movimiento fue válido y realizado, False en caso contrario.
+        Devuelve True si el movimiento fue válido y realizado.
+        Lanza excepciones de dominio si el movimiento es inválido.
         """
         if self._juego_terminado:
             raise JuegoYaTerminado("El juego ya ha terminado, no se pueden realizar más movimientos.")
         
         color = self.turno_actual.obtener_color()
-        if self.tablero.validar_movimiento(origen, destino, color):
-            self.tablero.mover_pieza(origen, destino)
-            # Verificar si el juego terminó después del movimiento
-            self._verificar_fin_juego()
-            return True
-        return False
+    # Validación y movimiento delegados al tablero; las condiciones inválidas se expresan con excepciones.
+        self.tablero.validar_movimiento(origen, destino, color)
+        self.tablero.mover_pieza(origen, destino)
+        # Verificar si el juego terminó después del movimiento
+        self._verificar_fin_juego()
+        return True
 
     def puede_reingresar(self):
         """
@@ -104,19 +121,21 @@ class Backgammon:
     def sacar_ficha_fuera(self, origen):
         """
         Intenta sacar una ficha fuera del tablero desde la posición 'origen' para el jugador actual.
-        Devuelve True si pudo sacar la ficha, False si no.
+        Devuelve True si pudo sacar la ficha.
+        Lanza excepciones si no es posible según reglas.
         """
         if self._juego_terminado:
             raise JuegoYaTerminado("El juego ya ha terminado, no se pueden sacar más fichas.")
         
         color = self.turno_actual.obtener_color()
-        if self.tablero.sacar_ficha_fuera(color, origen):
-            # Actualiza el estado del jugador
-            self.turno_actual.sacar_ficha_a_afuera()
-            # Verificar si el juego terminó después de sacar la ficha
-            self._verificar_fin_juego()
-            return True
-        return False
+    # Delegamos la regla de "todas en home" y operación de extracción al tablero.
+        self.tablero.sacar_ficha_fuera(color, origen)
+        # Actualiza el estado del jugador
+    # El jugador administra su contador de fichas restantes.
+        self.turno_actual.sacar_ficha_a_afuera()
+        # Verificar si el juego terminó después de sacar la ficha
+        self._verificar_fin_juego()
+        return True
 
     def _verificar_fin_juego(self):
         """
@@ -166,7 +185,7 @@ class Backgammon:
             "en_barra": self.fichas_en_barra(jugador.obtener_color())
         }
     
-    def validar_turno_jugador(self, jugador_solicitado: 'jugador'):
+    def validar_turno_jugador(self, jugador_solicitado):
         """
         Valida si es el turno del jugador especificado.
         """

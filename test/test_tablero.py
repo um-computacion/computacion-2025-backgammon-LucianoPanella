@@ -1,7 +1,16 @@
 import unittest
 from core.tablero import tablero
 from core.dice import dice
-from core.excepciones import DadosNoTirados, DadoNoDisponible
+from core.excepciones import (
+    DadosNoTirados,
+    DadoNoDisponible,
+    OrigenSinFicha,
+    PosicionFueraDeRango,
+    MovimientoInvalido,
+    DestinoBloqueado,
+    NoPuedeReingresar,
+    NoPuedeSacarFicha,
+)
 import random
 
 class TestTablero(unittest.TestCase):
@@ -34,8 +43,8 @@ class TestTablero(unittest.TestCase):
         self.assertEqual(self.tablero.mostrar_tablero()[0], [])
 
     def test_sacar_pieza_vacia(self):
-        pieza = self.tablero.sacar_pieza(5)
-        self.assertIsNone(pieza)
+        with self.assertRaises(OrigenSinFicha):
+            self.tablero.sacar_pieza(5)
 
     def test_mover_pieza_simple(self):
         self.tablero.colocar_pieza(0, "Blancas")
@@ -53,20 +62,29 @@ class TestTablero(unittest.TestCase):
         self.assertEqual(self.tablero.fichas_en_barra("Negras"), 1)
 
     def test_mover_pieza_origen_vacio(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(OrigenSinFicha):
             self.tablero.mover_pieza(0, 1)
 
     def test_validar_movimiento_basico(self):
         self.tablero.colocar_pieza(0, "Blancas")
         self.assertTrue(self.tablero.validar_movimiento(0, 1, "Blancas"))
-        self.assertFalse(self.tablero.validar_movimiento(0, 25, "Blancas"))  # destino fuera de rango
-        self.assertFalse(self.tablero.validar_movimiento(1, 2, "Blancas"))   # origen vacío
+        with self.assertRaises(PosicionFueraDeRango):
+            self.tablero.validar_movimiento(0, 25, "Blancas")  # destino fuera de rango
+        with self.assertRaises(OrigenSinFicha):
+            self.tablero.validar_movimiento(1, 2, "Blancas")   # origen vacío
 
     def test_validar_movimiento_enemigos(self):
         self.tablero.colocar_pieza(0, "Blancas")
         self.tablero.colocar_pieza(1, "Negras")
         self.tablero.colocar_pieza(1, "Negras")
-        self.assertFalse(self.tablero.validar_movimiento(0, 1, "Blancas"))  # dos enemigas en destino
+        with self.assertRaises(DestinoBloqueado):
+            self.tablero.validar_movimiento(0, 1, "Blancas")  # dos enemigas en destino
+
+    def test_validar_movimiento_color_incorrecto(self):
+        # Origen tiene ficha de color opuesto al jugador
+        self.tablero.colocar_pieza(3, "Negras")
+        with self.assertRaises(MovimientoInvalido):
+            self.tablero.validar_movimiento(3, 4, "Blancas")
 
     def test_reingresar_desde_barra(self):
         self.tablero.inicializar_piezas()
@@ -76,10 +94,26 @@ class TestTablero(unittest.TestCase):
         self.assertEqual(self.tablero.fichas_en_barra("Blancas"), 0)
         self.assertIn("Blancas", self.tablero.mostrar_tablero()[destino])
 
+    def test_reingresar_destino_fuerade_rango(self):
+        self.tablero.inicializar_piezas()
+        self.tablero.__barra__["Blancas"] = 1
+        with self.assertRaises(PosicionFueraDeRango):
+            self.tablero.reingresar_desde_barra("Blancas", 24)
+
+    def test_reingresar_destino_bloqueado(self):
+        self.tablero.inicializar_piezas()
+        # 1 ficha en barra y destino con dos enemigas
+        self.tablero.__barra__["Blancas"] = 1
+        self.tablero.colocar_pieza(2, "Negras")
+        self.tablero.colocar_pieza(2, "Negras")
+        with self.assertRaises(DestinoBloqueado):
+            self.tablero.reingresar_desde_barra("Blancas", 2)
+
     def test_no_reingresa_si_barra_vacia(self):
         self.tablero.inicializar_piezas()
         self.tablero.__barra__["Blancas"] = 0
-        self.assertFalse(self.tablero.reingresar_desde_barra("Blancas", 1))
+        with self.assertRaises(NoPuedeReingresar):
+            self.tablero.reingresar_desde_barra("Blancas", 1)
 
     def test_puede_reingresar(self):
         self.tablero.inicializar_piezas()
@@ -112,6 +146,60 @@ class TestTablero(unittest.TestCase):
         cantidad_inicial = self.tablero.mostrar_tablero()[18].count("Blancas")
         self.assertTrue(self.tablero.sacar_ficha_fuera("Blancas", 18))
         self.assertEqual(self.tablero.mostrar_tablero()[18].count("Blancas"), cantidad_inicial - 1)
+    
+    def test_sacar_ficha_fuera_invalido(self):
+        # No todas las fichas en home
+        self.tablero.inicializar_piezas()
+        with self.assertRaises(NoPuedeSacarFicha):
+            self.tablero.sacar_ficha_fuera("Blancas", 18)
+
+    def test_sacar_ficha_fuera_fuera_de_rango(self):
+        with self.assertRaises(PosicionFueraDeRango):
+            self.tablero.sacar_ficha_fuera("Blancas", 24)
+
+    def test_sacar_ficha_fuera_origen_vacio(self):
+        with self.assertRaises(OrigenSinFicha):
+            self.tablero.sacar_ficha_fuera("Blancas", 5)
+
+    def test_sacar_ficha_fuera_color_incorrecto(self):
+        self.tablero.colocar_pieza(5, "Negras")
+        with self.assertRaises(MovimientoInvalido):
+            self.tablero.sacar_ficha_fuera("Blancas", 5)
+
+    def test_mover_pieza_destino_bloqueado(self):
+        # Asegura que mover_pieza levante DestinoBloqueado y no mueva la ficha
+        self.tablero.colocar_pieza(0, "Blancas")
+        self.tablero.colocar_pieza(2, "Negras")
+        self.tablero.colocar_pieza(2, "Negras")
+        with self.assertRaises(DestinoBloqueado):
+            self.tablero.mover_pieza(0, 2)
+        # La ficha debe permanecer en el origen
+        self.assertEqual(self.tablero.mostrar_tablero()[0], ["Blancas"])
+
+    def test_mostrar_tablero_visual(self):
+        # Cubre la visualización básica del tablero
+        self.tablero.inicializar_piezas()
+        # Mover algunas fichas a HOME para afectar contadores
+        # Quitamos 3 blancas del tablero simulado
+        for pos in [18, 18, 18]:
+            self.tablero.sacar_pieza(pos)
+        # Poner 2 en barra (1 de cada color) para cubrir ramas de barra
+        self.tablero.__barra__["Blancas"] = 1
+        self.tablero.__barra__["Negras"] = 1
+        rendering = self.tablero.mostrar_tablero_visual()
+        self.assertIsInstance(rendering, str)
+        # Cabeceras y pies
+        self.assertIn("HOME BLANCAS", rendering)
+        self.assertIn("HOME NEGRAS", rendering)
+        self.assertIn("│BAR│", rendering)
+        # Información adicional
+        self.assertIn("Fichas en barra - Blancas", rendering)
+        self.assertIn("Fichas comidas - Blancas", rendering)
+        self.assertIn("Puntos ganados - Blancas", rendering)
+
+    def test_set_fichas_en_barra_negativo(self):
+        with self.assertRaises(ValueError):
+            self.tablero.set_fichas_en_barra("Blancas", -1)
 
     def test_fichas_en_barra(self):
         self.tablero.inicializar_piezas()
