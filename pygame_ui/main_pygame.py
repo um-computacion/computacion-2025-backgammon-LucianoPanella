@@ -1,3 +1,4 @@
+#FINALIZADO#
 import pygame
 from pygame_ui.game_ui import GameUI
 from pygame_ui.constants import (
@@ -16,13 +17,14 @@ def ask_names_pygame():
 	screen = pygame.display.set_mode((WIDTH, HEIGHT))
 	pygame.display.set_caption("Backgammon - Ingresar nombres")
 	clock = pygame.time.Clock()
-	font_title = pygame.font.SysFont("arial", 32, bold=True)
+	font_header = pygame.font.SysFont("arial", 36, bold=True)
+	font_title = pygame.font.SysFont("arial", 28, bold=True)
 	font = pygame.font.SysFont("arial", 22)
 
-	# Campos
-	input_rect_blancas = pygame.Rect(WIDTH//2 - 260, HEIGHT//2 - 40, 300, 40)
-	input_rect_negras = pygame.Rect(WIDTH//2 - 260, HEIGHT//2 + 20, 300, 40)
-	btn_rect = pygame.Rect(WIDTH//2 + 60, HEIGHT//2 - 10, 120, 40)
+	# Campos - separacion levemente mayor para legibilidad
+	input_rect_blancas = pygame.Rect(WIDTH//2 - 260, HEIGHT//2 - 50, 300, 40)
+	input_rect_negras = pygame.Rect(WIDTH//2 - 260, HEIGHT//2 + 30, 300, 40)
+	btn_rect = pygame.Rect(WIDTH//2 + 60, input_rect_negras.top + 50, 120, 40)
 
 	color_active = COLOR_INPUT_ACTIVE
 	color_inactive = COLOR_INPUT_INACTIVE
@@ -96,8 +98,11 @@ def ask_names_pygame():
 								nombre_negras += char
 
 		screen.fill(bg)
+		# Encabezado y subtitulo
+		header = font_header.render("Bienvenido a BACKGAMMON", True, (0,0,0))
+		screen.blit(header, (WIDTH//2 - header.get_width()//2, 12))
 		title = font_title.render("Ingresar nombres", True, (0,0,0))
-		screen.blit(title, (WIDTH//2 - title.get_width()//2, 40))
+		screen.blit(title, (WIDTH//2 - title.get_width()//2, 12 + header.get_height() + 8))
 
 		# Labels
 		lbl_b = font.render("Blancas:", True, (0,0,0))

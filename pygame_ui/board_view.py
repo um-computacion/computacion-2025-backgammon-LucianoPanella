@@ -1,3 +1,4 @@
+#FINALIZADO#
 import pygame
 from core.constants import INITIAL_CHECKERS
 from pygame_ui.dice_renderer import DiceRenderer

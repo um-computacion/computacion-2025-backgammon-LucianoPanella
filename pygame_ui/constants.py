@@ -1,3 +1,4 @@
+#FINALIZADO#
 """Constantes de la UI Pygame (dimensiones, colores y placeholders)."""
 
 # Dimensiones por defecto de la ventana del juego

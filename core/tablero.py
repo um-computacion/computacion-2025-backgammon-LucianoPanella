@@ -1,4 +1,4 @@
-#Revisar
+#FINALIZADO#
 from core.excepciones import (
     MovimientoInvalido,
     PosicionFueraDeRango,

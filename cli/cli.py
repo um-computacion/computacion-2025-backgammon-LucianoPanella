@@ -1,3 +1,4 @@
+#FINALIZADO#
 from core.backgammon import Backgammon
 from core.constants import BLANCAS, NEGRAS, BOARD_POINTS
 from core.excepciones import (
@@ -104,7 +105,7 @@ def main():
                                             break
                                         print(f"La posición debe estar entre 0 y {BOARD_POINTS-1}.")
                                     except (ValueError, TypeError):
-                                        print("Error: Por favor ingrese un número válido.")
+                                        print("Origen inválido: debe ser un número.")
                                 # Elegir dado a usar
                                 print(f"Dados disponibles para reingresar: {dados_disponibles}")
                                 while True:
@@ -112,7 +113,7 @@ def main():
                                         dado_usado = int(input("¿Qué dado desea usar para reingresar? "))
                                         break
                                     except (ValueError, TypeError):
-                                        print("Error: Por favor ingrese un número válido.")
+                                        print("Origen inválido: debe ser un número.")
 
                                 if dado_usado in dados_disponibles:
                                     if juego.reingresar_desde_barra(destino):
@@ -228,9 +229,9 @@ def main():
                     except (NoHayReingresoPosible, SinMovimientosDisponibles) as e:
                         print(getattr(e, 'message', str(e)))
                         break
-                    except KeyboardInterrupt:
+                    except (KeyboardInterrupt, EOFError, StopIteration):
                         print("\nJuego interrumpido por el usuario.")
-                        return
+                        break
                     except Exception as e:
                         print(f"Error inesperado: {getattr(e, 'message', str(e))}")
                             
@@ -256,7 +257,7 @@ def main():
                 respuesta = input("¿Desea continuar jugando? (s/n): ")
                 if respuesta.lower() != 's':
                     break
-            except KeyboardInterrupt:
+            except (KeyboardInterrupt, EOFError, StopIteration):
                 print("\nJuego interrumpido por el usuario.")
                 break
             except Exception as e:

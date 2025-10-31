@@ -1,4 +1,4 @@
-#Revisar 
+#FINALIZADO#
 from core.excepciones import FichaNoDisponible, JugadorYaGano
 from core.constants import INITIAL_CHECKERS
 

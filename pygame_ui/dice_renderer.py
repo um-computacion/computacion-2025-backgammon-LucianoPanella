@@ -1,3 +1,4 @@
+#FINALIZADO#
 import pygame
 from pygame_ui.constants import DICE_SIZE, DICE_GAP
 
