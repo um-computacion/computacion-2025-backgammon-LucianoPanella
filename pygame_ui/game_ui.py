@@ -1,25 +1,25 @@
-#FINALIZADO#
-# Responsable de la interfaz de usuario del juego
-# Maneja la inicializacion de Pygame, la creacion de la ventana
-# y la integracion de los distintos componentes de la UI
+"""UI de Backgammon en Pygame."""
 
-import pygame
+# pylint: disable=bad-indentation,trailing-newlines,import-outside-toplevel,reimported,too-many-instance-attributes,too-many-nested-blocks,too-many-return-statements,broad-exception-caught,wrong-import-order,no-member
+
 import sys
+import pygame
+
 from core.backgammon import Backgammon
 from core.constants import BLANCAS, NEGRAS, BOARD_POINTS, HOME_RANGE
-from core.excepciones import (
-	BackgammonError,
-)
+from core.excepciones import BackgammonError
 from pygame_ui.board_view import BoardView
-from pygame_ui.constants import COLOR_BTN_RESTART, COLOR_BTN_EXIT, PLACEHOLDER_WHITE, PLACEHOLDER_BLACK
+from pygame_ui.constants import (
+	COLOR_BTN_RESTART,
+	COLOR_BTN_EXIT,
+	PLACEHOLDER_WHITE,
+	PLACEHOLDER_BLACK,
+)
 from pygame_ui.events_handler import EventsHandler
 
 
 class GameUI:
-	"""Orquestador simple: crea el juego y dibuja con BoardView.
-
-	Mantiene la UI minimalista para mostrar el tablero y nombres con el layout clásico.
-	"""
+	"""Orquestador simple del juego y la vista."""
 
 	def __init__(self, player1_name: str, player2_name: str, width=900, height=600):
 		pygame.init()
@@ -39,18 +39,19 @@ class GameUI:
 		self.player2_name = player2_name
 		turno = self.game.turno_actual.obtener_color()
 		nombre = self.game.turno_actual.obtener_nombre()
-		self.message = f"Turno de {nombre} ({turno}). Espacio: tirar dados | Izq: seleccionar | Der: mover"
-		self.dados_disponibles = []  # copia editable del turno actual
-		self.seleccion = None  # None | int(0..23) | 'barra'
-		self.destinos_resaltados = []  # lista de puntos o 'off'
-		self._destino_a_dado = {}  # map destino -> valor de dado a consumir
-		# Selección automática inicial si hay fichas en barra
+		self.message = (
+			f"Turno de {nombre} ({turno}). "
+			"Espacio: tirar dados | Izq: seleccionar | Der: mover"
+		)
+		self.dados_disponibles = []
+		self.seleccion = None
+		self.destinos_resaltados = []
+		self._destino_a_dado = {}
 		self._auto_select_bar()
-		# Estado fin de juego
 		self._game_over = False
-		self._game_over_info = None  # dict con nombres, colores y borne-off
-		# Manejador de eventos
+		self._game_over_info = None
 		self.events = EventsHandler(self)
+		self._overlay_buttons = None
 
 	def _color_actual(self):
 		return self.game.turno_actual.obtener_color()
@@ -76,16 +77,13 @@ class GameUI:
 		posibles = []
 		m = {}
 		for d in self.dados_disponibles:
-			if color == BLANCAS:
-				dest = d - 1
-			else:
-				dest = BOARD_POINTS - d
+			dest = (d - 1) if color == BLANCAS else (BOARD_POINTS - d)
 			if 0 <= dest < BOARD_POINTS:
 				pila = board[dest]
 				if (not pila) or (pila[-1] == color) or (len(pila) == 1):
 					if dest not in posibles:
 						posibles.append(dest)
-					m[dest] = d
+						m[dest] = d
 		return posibles, m
 
 	def _calcular_destinos_mov(self, origen):
@@ -191,12 +189,51 @@ class GameUI:
 					self.seleccion = 'barra'
 					self._recalcular_resaltados()
 					self.message = "Tiene fichas en barra. Seleccione destino de reingreso"
+					# Si no hay movimientos posibles (p. ej., puntos bloqueados), pasar turno automáticamente
+					if not self._hay_movimientos_disponibles():
+						try:
+							self.game.cambiar_turno()
+							self.dados_disponibles = []
+							self.seleccion = None
+							self.destinos_resaltados = []
+							self._destino_a_dado = {}
+							turno = self.game.turno_actual.obtener_color()
+							nombre = self.game.turno_actual.obtener_nombre()
+							self.message = (
+								f"Sin movimientos posibles. Turno de {nombre} ({turno}). "
+								"Espacio para tirar dados."
+							)
+							self._auto_select_bar()
+							return
+						except BackgammonError as e:
+							self.message = e.message or str(e)
 				else:
 					self.seleccion = None
 					self._recalcular_resaltados()
 					turno = self.game.turno_actual.obtener_color()
 					nombre = self.game.turno_actual.obtener_nombre()
-					self.message = f"Turno de {nombre} ({turno}). Dados: {self.dados_disponibles}. Seleccione origen."
+					self.message = (
+						f"Turno de {nombre} ({turno}). Dados: {self.dados_disponibles}. "
+						"Seleccione origen."
+					)
+					# Sin movimientos posibles tras tirar: pasar turno automáticamente
+					if not self._hay_movimientos_disponibles():
+						try:
+							self.game.cambiar_turno()
+							self.dados_disponibles = []
+							self.seleccion = None
+							self.destinos_resaltados = []
+							self._destino_a_dado = {}
+							turno = self.game.turno_actual.obtener_color()
+							nombre = self.game.turno_actual.obtener_nombre()
+							self.message = (
+								f"Sin movimientos posibles. Turno de {nombre} ({turno}). "
+								"Espacio para tirar dados."
+							)
+							self._auto_select_bar()
+							return
+						except BackgammonError as e:
+							self.message = e.message or str(e)
 			except BackgammonError as e:
 				self.message = e.message or str(e)
 
@@ -255,7 +292,10 @@ class GameUI:
 				else:
 					turno = self.game.turno_actual.obtener_color()
 					nombre = self.game.turno_actual.obtener_nombre()
-					self.message = f"Turno de {nombre} ({turno}). Dados: {self.dados_disponibles}. Seleccione origen."
+					self.message = (
+						f"Turno de {nombre} ({turno}). Dados: {self.dados_disponibles}. "
+						"Seleccione origen."
+					)
 			else:
 				self.seleccion = p
 				# Sólo recalcular destinos si hay dados; sin dados no hay resaltados
@@ -376,7 +416,9 @@ class GameUI:
 				self._destino_a_dado = {}
 				turno = self.game.turno_actual.obtener_color()
 				nombre = self.game.turno_actual.obtener_nombre()
-				self.message = f"Turno de {nombre} ({turno}). Espacio para tirar dados."
+				self.message = "Turno de {0} ({1}). Espacio para tirar dados.".format(
+					nombre, turno
+				)
 				# Selección automática de barra si aplica
 				self._auto_select_bar()
 			except BackgammonError as e:
@@ -384,7 +426,10 @@ class GameUI:
 		else:
 			turno = self.game.turno_actual.obtener_color()
 			nombre = self.game.turno_actual.obtener_nombre()
-			self.message = f"Turno de {nombre} ({turno}). Dados: {self.dados_disponibles}. Seleccione origen."
+			self.message = (
+				f"Turno de {nombre} ({turno}). Dados: {self.dados_disponibles}. "
+				"Seleccione origen."
+			)
 
 	def _auto_select_bar(self):
 		"""Si el jugador actual tiene fichas en barra, selecciona 'barra' automáticamente."""
@@ -443,8 +488,14 @@ class GameUI:
 		self.screen.blit(title, (panel_rect.centerx - title.get_width()//2, panel_rect.top + 20))
 		if self._game_over_info:
 			wi = self._game_over_info
-			line1 = text_font.render(f"Ganador: {wi['winner_name']} ({wi['winner_color']})", True, (0,0,0))
-			line2 = text_font.render(f"Marcador: {wi['winner_name']} {wi['winner_off']} - {wi['loser_off']} {wi['loser_name']}", True, (0,0,0))
+			line1 = text_font.render(
+				f"Ganador: {wi['winner_name']} ({wi['winner_color']})", True, (0,0,0)
+			)
+			line2 = text_font.render(
+				f"Marcador: {wi['winner_name']} {wi['winner_off']} - {wi['loser_off']} {wi['loser_name']}",
+				True,
+				(0,0,0),
+			)
 			self.screen.blit(line1, (panel_rect.centerx - line1.get_width()//2, panel_rect.top + 80))
 			self.screen.blit(line2, (panel_rect.centerx - line2.get_width()//2, panel_rect.top + 120))
 		else:
@@ -462,25 +513,18 @@ class GameUI:
 		pygame.draw.rect(self.screen, COLOR_BTN_EXIT, btn_exit, border_radius=6)
 		lbl_r = text_font.render("Reiniciar", True, (255,255,255))
 		lbl_e = text_font.render("Finalizar", True, (255,255,255))
-		self.screen.blit(lbl_r, (btn_restart.centerx - lbl_r.get_width()//2, btn_restart.centery - lbl_r.get_height()//2))
-		self.screen.blit(lbl_e, (btn_exit.centerx - lbl_e.get_width()//2, btn_exit.centery - lbl_e.get_height()//2))
+		self.screen.blit(
+			lbl_r,
+			(btn_restart.centerx - lbl_r.get_width()//2, btn_restart.centery - lbl_r.get_height()//2),
+		)
+		self.screen.blit(
+			lbl_e,
+			(btn_exit.centerx - lbl_e.get_width()//2, btn_exit.centery - lbl_e.get_height()//2),
+		)
 		self._overlay_buttons = { 'restart': btn_restart, 'exit': btn_exit }
 
-	def _restart_game(self):
-		"""Reinicia la partida manteniendo los mismos nombres y colores."""
-		p1, p2 = self.player1_name, self.player2_name
-		self.game = Backgammon(p1, BLANCAS, p2, NEGRAS)
-		self.dados_disponibles = []
-		self.seleccion = None
-		self.destinos_resaltados = []
-		self._destino_a_dado = {}
-		self._game_over = False
-		self._game_over_info = None
-		self.message = f"Turno de {self.game.turno_actual.obtener_nombre()} ({self.game.turno_actual.obtener_color()}). Espacio: tirar dados | Izq: seleccionar | Der: mover"
-		self._auto_select_bar()
-
-
 	def run(self):
+		"""Bucle principal del juego: procesa eventos y renderiza a ~60 FPS."""
 		while self.is_running:
 			self._handle_events()
 			self._render()
@@ -489,29 +533,28 @@ class GameUI:
 		pygame.quit()
 		sys.exit()
 
-
 def main():
-	try:
-		print("=== BACKGAMMON - PYGAME ===")
-		# Validación: no permitir placeholders ni vacío
-		while True:
-			p1 = input("Nombre del Jugador 1 (Blancas): ").strip()
-			if p1 and p1.lower() != PLACEHOLDER_WHITE.lower():
-				break
-			print("Nombre inválido. No se permite vacío ni 'Jugador 1'.")
-		while True:
-			p2 = input("Nombre del Jugador 2 (Negras): ").strip()
-			if p2 and p2.lower() != PLACEHOLDER_BLACK.lower():
-				break
-			print("Nombre inválido. No se permite vacío ni 'Jugador 2'.")
-		ui = GameUI(p1, p2)
-		ui.run()
-	except KeyboardInterrupt:
-		print("\nJuego interrumpido por el usuario.")
-	except Exception as e:
-		print(f"Error ejecutando el juego: {e}")
-		pygame.quit()
-		sys.exit()
+    try:
+        print("=== BACKGAMMON - PYGAME ===")
+        # Validación: no permitir placeholders ni vacío
+        while True:
+            p1 = input("Nombre del Jugador 1 (Blancas): ").strip()
+            if p1 and p1.lower() != PLACEHOLDER_WHITE.lower():
+                break
+            print("Nombre inválido. No se permite vacío ni 'Jugador 1'.")
+        while True:
+            p2 = input("Nombre del Jugador 2 (Negras): ").strip()
+            if p2 and p2.lower() != PLACEHOLDER_BLACK.lower():
+                break
+            print("Nombre inválido. No se permite vacío ni 'Jugador 2'.")
+        ui = GameUI(p1, p2)
+        ui.run()
+    except KeyboardInterrupt:
+        print("\nJuego interrumpido por el usuario.")
+    except Exception as e:
+        print(f"Error ejecutando el juego: {e}")
+        pygame.quit()
+        sys.exit()
 
 
 if __name__ == "__main__":

@@ -233,12 +233,11 @@ def main():
                         print("\nJuego interrumpido por el usuario.")
                         break
                     except Exception as e:
+                        # Repropagar errores del dominio para que los maneje el nivel superior
+                        if isinstance(e, BackgammonError):
+                            raise
                         print(f"Error inesperado: {getattr(e, 'message', str(e))}")
-                            
-                    except BackgammonError as e:
-                        print(f"Error del juego: {getattr(e, 'message', str(e))}")
-                    except Exception as e:
-                        print(f"Error inesperado en el turno: {getattr(e, 'message', str(e))}")
+                        continue
 
                 # Si el juego terminó, sale del bucle
                 if juego.juego_terminado():

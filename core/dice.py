@@ -1,4 +1,5 @@
 #FINALIZADO#
+# pylint: disable=invalid-name
 import random
 from core.excepciones import DadosNoTirados, DadoNoDisponible
 
@@ -50,6 +51,6 @@ class dice:
         return True
 
     def reiniciar_turno(self):
-    # Reinicia el estado para un nuevo turno
+        # Reinicia el estado para un nuevo turno
         self._ha_tirado = False
         self._ultima_tirada = []
