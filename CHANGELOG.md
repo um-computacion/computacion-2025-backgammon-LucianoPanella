@@ -160,6 +160,28 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0
 - Estructura del proyecto mejorada para soportar interfaces CLI y GUI
 - Arquitectura del juego mejorada para soportar múltiples tipos de interfaz
 
+## [2.1.0] - 2025-11-01
+
+### Agregado
+- Regla en la UI: pasar turno automáticamente cuando hay fichas en barra y los puntos de reingreso están bloqueados con las tiradas actuales, o cuando no existen movimientos posibles tras tirar.
+- Archivos de prompts completos según consigna: `promts/prompts-desarrollo.md`, `promts/prompts-documentacion.md`, `promts/prompts-testing.md`.
+
+### Cambiado
+- `pygame_ui/game_ui.py`: normalización de indentación/estructura y mejora de mensajes de estado para guiar acciones (tirar dados, seleccionar/mover, pase de turno automático).
+- `pygame_ui/main_pygame.py`: limpieza del bloque principal y llamada a `GameUI.run()`.
+
+### Corregido
+- Error de ejecución al iniciar la GUI (falta de método `run` en `GameUI`) solucionado agregando `GameUI.run()` y ajustando llamadas.
+- Correcciones menores en núcleo para estabilidad y lint: dedent en retorno de `core/backgammon.py`; `__str__` en `core/jugador.py`; normalización de `reiniciar_turno` y naming en `core/dice.py`; limpieza en `core/excepciones.py`.
+- Compilación limpia de módulos `pygame_ui/` y eliminación de mezclas tabs/espacios.
+
+### Infraestructura
+- CI con GitHub Actions: ejecución de tests con coverage, análisis con Pylint y publicación de artefactos (coverage XML, reporte de coverage y Pylint), más comentario automático de cobertura en PRs (`.github/workflows/ci.yml`).
+
+### Documentación
+- `Report.md` actualizado con cobertura del núcleo (~96%) usando `.coveragerc` para excluir `cli/` y `pygame_ui/` del cálculo central.
+- README verificado con instrucciones para Windows PowerShell (venv, instalación, ejecución CLI/GUI, coverage).
+
 ---
 
 ## Guías de Formato
