@@ -1,4 +1,5 @@
 #FINALIZADO#
+# pylint: disable=bad-indentation,trailing-newlines
 import pygame
 from pygame_ui.constants import DICE_SIZE, DICE_GAP
 
@@ -32,7 +33,10 @@ class DiceRenderer:
 
 		n = min(4, len(valores))
 		total_h = n * self.size + (n - 1) * self.gap
-		start_y = (tablero_top + view.top_labels_band) + (((tablero_bottom - (tablero_top + view.top_labels_band)) - total_h) / 2)
+		start_y = (
+			(tablero_top + view.top_labels_band)
+			+ (((tablero_bottom - (tablero_top + view.top_labels_band)) - total_h) / 2)
+		)
 
 		def dibujar_dado(cx, cy, valor):
 			rect = pygame.Rect(0, 0, self.size, self.size)

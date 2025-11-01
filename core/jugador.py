@@ -14,7 +14,7 @@ class jugador:
         return self.__fichas_restantes__
 
     def obtener_nombre(self):
-       # Devuelve el nombre del jugador
+        # Devuelve el nombre del jugador
         return self.__nombre__
 
     def obtener_color(self):

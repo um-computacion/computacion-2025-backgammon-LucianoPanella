@@ -1,0 +1,33 @@
+[MASTER]
+ignore=venv,__pycache__
+extension-pkg-whitelist=
+jobs=1
+persistent=yes
+
+[MESSAGES CONTROL]
+disable=
+    missing-docstring,
+    too-few-public-methods,
+    too-many-arguments,
+    too-many-locals,
+    too-many-branches,
+    too-many-statements,
+    invalid-name
+
+[REPORTS]
+output-format=text
+score=no
+
+[FORMAT]
+max-line-length=120
+indent-string='    '
+
+[BASIC]
+good-names=i,j,k,ex,Run,_,t
+docstring-min-length=10
+
+[TYPECHECK]
+ignored-modules=pygame
+
+[DESIGN]
+max-attributes=15

@@ -6,6 +6,7 @@ https://www.paradigmadigital.com/dev/mockear-tests-python/
 import io
 import unittest
 from unittest.mock import patch, MagicMock
+from core.excepciones import BackgammonError, JuegoYaTerminado
 
 
 class FakeJugador:
@@ -325,6 +326,97 @@ class TestCLI(unittest.TestCase):
 
         self.assertIn("Error con los dados", out)
         self.assertIn("Error al cambiar turno", out)
+
+    
+
+    @patch("cli.cli.Backgammon")
+    def test_tirar_dados_juego_ya_terminado(self, MockBackgammon):
+        from cli import cli as cli_module
+
+        juego = MagicMock()
+        juego.turno_actual.obtener_nombre.return_value = "J1"
+        juego.turno_actual.obtener_color.return_value = "Blancas"
+        juego.estado_tablero_visual.return_value = "TABLERO"
+        juego.fichas_en_barra.return_value = 0
+        juego.tirar_dados.side_effect = JuegoYaTerminado("fin")
+        juego.juego_terminado.side_effect = [False]
+        juego.obtener_ganador.return_value = None
+        MockBackgammon.return_value = juego
+
+        with patch("builtins.input", side_effect=["A", "B", ""]), \
+             patch("sys.stdout", new_callable=io.StringIO) as fake_out:
+            cli_module.main()
+            out = fake_out.getvalue()
+
+        self.assertIn("Error:", out)
+        self.assertIn("¡Juego terminado!", out)
+        self.assertIn("No hay ganador.", out)
+
+    @patch("cli.cli.Backgammon")
+    def test_error_del_juego_y_usuario_elije_salir(self, MockBackgammon):
+        from cli import cli as cli_module
+
+        juego = MagicMock()
+        juego.turno_actual.obtener_nombre.return_value = "J1"
+        juego.turno_actual.obtener_color.return_value = "Blancas"
+        juego.estado_tablero_visual.return_value = "TABLERO"
+        juego.fichas_en_barra.return_value = 0
+        juego.tirar_dados.side_effect = BackgammonError("fallo")
+        juego.juego_terminado.side_effect = [False]
+        MockBackgammon.return_value = juego
+
+        with patch("builtins.input", side_effect=["A", "B", "", "n"]), \
+             patch("sys.stdout", new_callable=io.StringIO) as fake_out:
+            cli_module.main()
+            out = fake_out.getvalue()
+
+        self.assertIn("Error del juego:", out)
+        self.assertIn("¡Juego terminado!", out)
+
+    @patch("cli.cli.Backgammon")
+    def test_error_al_finalizar_el_juego(self, MockBackgammon):
+        from cli import cli as cli_module
+
+        juego = MagicMock()
+        juego.juego_terminado.return_value = True
+        juego.obtener_ganador.side_effect = Exception("fin error")
+        MockBackgammon.return_value = juego
+
+        with patch("builtins.input", side_effect=["A", "B"]), \
+             patch("sys.stdout", new_callable=io.StringIO) as fake_out:
+            cli_module.main()
+            out = fake_out.getvalue()
+
+        self.assertIn("¡Juego terminado!", out)
+        self.assertIn("Error al finalizar el juego:", out)
+
+    @patch("cli.cli.Backgammon", side_effect=Exception("boom init"))
+    def test_error_al_inicializar(self, MockBackgammon):
+        from cli import cli as cli_module
+
+        with patch("builtins.input", side_effect=["A", "B"]), \
+             patch("sys.stdout", new_callable=io.StringIO) as fake_out:
+            cli_module.main()
+            out = fake_out.getvalue()
+
+        self.assertIn("Error al inicializar el juego:", out)
+
+    @patch("cli.cli.Backgammon")
+    def test_mensaje_ganador(self, MockBackgammon):
+        from cli import cli as cli_module
+
+        juego = MagicMock()
+        juego.juego_terminado.return_value = True
+        juego.obtener_ganador.return_value = "Jugador1"
+        MockBackgammon.return_value = juego
+
+        with patch("builtins.input", side_effect=["A", "B"]), \
+             patch("sys.stdout", new_callable=io.StringIO) as fake_out:
+            cli_module.main()
+            out = fake_out.getvalue()
+
+        self.assertIn("¡Juego terminado!", out)
+        self.assertIn("Felicidades Jugador1", out)
 
 
 if __name__ == "__main__":
