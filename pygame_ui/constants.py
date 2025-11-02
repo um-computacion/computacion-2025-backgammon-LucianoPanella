@@ -1,0 +1,52 @@
+#FINALIZADO#
+"""Constantes de la UI Pygame (dimensiones, colores y placeholders)."""
+
+# Dimensiones por defecto de la ventana del juego
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 600
+
+# Layout de BoardView
+UI_MARGIN = 40
+UI_MESSAGE_BAR_HEIGHT = 60
+UI_BOTTOM_LABELS_BAND = 50
+UI_TOP_LABELS_BAND = 26
+UI_OFF_TRAY_WIDTH = 70
+UI_MAX_VISIBLE_STACK = 5
+UI_STACK_SPACING_FACTOR = 1.9
+
+# Dimensiones de la pantalla de nombres
+NAME_SCREEN_WIDTH = 720
+NAME_SCREEN_HEIGHT = 360
+
+# Placeholders (no permitidos como nombres válidos)
+PLACEHOLDER_WHITE = "Jugador 1"
+PLACEHOLDER_BLACK = "Jugador 2"
+
+# Tamaño de dados en la barra central
+DICE_SIZE = 32
+DICE_GAP = 10
+
+# Colores útiles
+COLOR_BTN_RESTART = (60, 160, 80)
+COLOR_BTN_EXIT = (160, 60, 60)
+COLOR_ERROR_TEXT = (180, 40, 40)
+COLOR_INPUT_ACTIVE = (50, 120, 200)
+COLOR_INPUT_INACTIVE = (120, 120, 120)
+COLOR_BG_NAME = (235, 220, 190)
+COLOR_FIELD_BG = (255, 255, 255)
+
+# Colores del tablero
+COLOR_BOARD_BG = (240, 220, 180)  # BEIGE
+COLOR_TRIANGLE_LIGHT = (210, 160, 100)
+COLOR_TRIANGLE_DARK = (140, 90, 40)
+COLOR_BLACK = (0, 0, 0)
+COLOR_WHITE = (255, 255, 255)
+COLOR_GRAY = (50, 50, 50)
+COLOR_BAR_BG = (205, 186, 150)
+COLOR_TRAY_BG = (205, 186, 150)
+COLOR_MSG_BAR_BG = (220, 200, 160)
+COLOR_TURN_INDICATOR = (0, 180, 0)
+COLOR_HL_DEST = (0, 120, 0, 110)  # RGBA
+COLOR_HL_SEL = (255, 215, 0, 200)  # RGBA
+COLOR_HL_SEL_BORDER = (255, 215, 0, 150)  # RGBA
+
