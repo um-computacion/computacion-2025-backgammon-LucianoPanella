@@ -72,3 +72,65 @@ Anexos y mejoras futuras
 	- Docker opcional para estandarizar ejecución.
 	- Persistencia opcional (e.g., Redis) para guardar/cargar partidas.
 
+Contratos del dominio (mini-ESPEC)
+----------------------------------
+- Entradas principales:
+	- Tirar dados: sin parámetros; salida: lista ordenada de valores disponibles (dobles duplican movimientos).
+	- Mover ficha: (jugador, origen -> destino) o (reingreso desde barra -> punto). Salida: estado válido o excepción de dominio.
+	- Cambio de turno: implícito al consumir todos los valores de dados o cuando no hay movimientos válidos.
+- Invariantes clave:
+	- Un jugador con fichas en barra debe reingresar antes de cualquier otro movimiento.
+	- Un punto con 2+ fichas del rival está bloqueado; solo puede ocuparlo el propietario o golpear si hay exactamente 1 ficha rival.
+	- “Bear off” solo desde el home cuando todas las fichas propias están en el cuadrante final.
+- Criterios de éxito por jugada:
+	- El movimiento consume exactamente un valor de dado disponible.
+	- No viola bloqueos ni reglas de reingreso/bear off.
+	- Actualiza correctamente barra, capturas y conteos de “fichas_fuera”.
+
+Estados y flujos esenciales
+---------------------------
+- Barra y reingreso: si los puntos de entrada (según dado) están bloqueados, el jugador no puede moverse. En la GUI se aplica “auto-pass” del turno tras tirar y verificar ausencia de movimientos válidos.
+- Dobles: duplican la cantidad de movimientos (4 valores idénticos). El consumo se lleva en `dice`.
+- Golpe y envío a barra: si el destino tiene exactamente 1 ficha rival, se captura y se envía a la barra del contrario.
+- Fin de juego: cuando un jugador coloca todas sus fichas “fuera”, `Backgammon` detiene el juego y reporta ganador.
+
+Excepciones mapeadas a reglas
+-----------------------------
+- `NoPuedeReingresar`: hay fichas en barra y no existen puntos de entrada libres según los dados.
+- `DestinoBloqueado`: el destino tiene 2+ fichas rivales.
+- `OrigenSinFicha`: el punto de origen no contiene ficha del jugador activo.
+- `NoPuedeSacarFicha`: intento de “bear off” fuera de condiciones (piezas fuera del home o distancia inválida).
+- `TurnoIncorrecto`: acciones intentando mover con el jugador opuesto al activo.
+- `JuegoYaTerminado`: cualquier acción posterior a la condición de victoria.
+
+Decisiones y trade-offs
+-----------------------
+- “Auto-pass” en GUI: mejora UX; se implementa solo en la capa de interfaz para no acoplar el core a decisiones de presentación. El core conserva el contrato puro de reglas.
+- Inyección de dependencias sencilla (sin framework): suficiente para pruebas y facilita reemplazos en el futuro.
+- CLI mínima: mantiene el foco en validación y mensajes; no se mezcla la lógica con el rendering.
+
+Mantenibilidad y extensibilidad
+-------------------------------
+- Nuevas UIs (por ejemplo, una API REST o una app móvil) pueden reutilizar `core/` sin cambios.
+- Reglas adicionales o variantes (e.g., backgammon con dobles cancelables) pueden aislarse en nuevas implementaciones de `dice` o extensiones en `tablero` sin alterar la CLI/GUI.
+- Los nombres y métodos públicos de `core/` actúan como contrato estable; se documentan en README y en tests.
+
+Calidad: lint, CI y puertas de control
+--------------------------------------
+- Linting: Pylint con configuración dedicada; puntuación mejorada durante el proyecto.
+- CI: ejecución automática de tests, cobertura (XML y reporte de texto) y Pylint; publicación de artefactos y comentario en PRs.
+- Puertas de calidad (estado actual):
+	- Build: PASS (módulos compilan y tests inician)
+	- Lint/Typecheck: PASS (advertencias controladas en Pylint)
+	- Tests: PASS (suite unitaria OK)
+	- Cobertura central: PASS (≈94–96% en `core/` según Report.md)
+
+Diagrama de clases (referencia)
+--------------------------------
+El diagrama actualizado vive en el README en formato ASCII legible (sección “Diagrama de clases”).
+
+Notas de interpretación:
+- El módulo `Backgammon` orquesta a `Tablero`, `Jugador` y `Dice`.
+- `CLI` y `PygameUI` son clientes del dominio: no contienen lógica de reglas.
+- Las excepciones modelan fallas de dominio y son consumidas por las UIs para mensajes/flujo.
+

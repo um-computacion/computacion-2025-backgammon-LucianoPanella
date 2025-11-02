@@ -3,19 +3,40 @@ Backgammon en Python (CLI + Pygame)
 
 Autor: Luciano Panella
 
-Introducción
-------------
-Proyecto final de Backgammon con doble interfaz: línea de comandos (CLI) y Pygame (GUI). La lógica del juego está completamente desacoplada de las interfaces, se aplican principios SOLID, y se acompaña con una suite de tests con cobertura superior al 90%.
+Descripción
+-----------
+Proyecto final de Backgammon con doble interfaz: línea de comandos (CLI) y Pygame (GUI). La lógica del juego está desacoplada de las interfaces (principios SOLID), con suite de tests y cobertura central > 90%.
+
+Tabla de contenidos
+-------------------
+- Descripción (este apartado)
+- Características clave
+- Estructura del proyecto
+- Instalación y prerrequisitos (Windows PowerShell)
+- Guía de ejecución (CLI y GUI)
+- Controles (GUI)
+- Diagrama de clases (imagen)
+- Ejecución de tests y cobertura
+- Notas y troubleshooting
+- Licencia
+
+Características clave
+---------------------
+- Lógica de dominio independiente de las UIs (CLI y Pygame)
+- Reglas completas de backgammon: barra, reingreso, bloqueos, home y “bear off”
+- Regla de calidad de vida en GUI: pasa turno automáticamente si no hay movimientos válidos (incluye bloqueo desde barra)
+- Suite de pruebas unitarias con cobertura central ~96% (según Report.md)
+- Pipeline de CI: tests + coverage + Pylint y publicación de artefactos
 
 Estructura del proyecto
 -----------------------
-- `core/` — Lógica de dominio (Backgammon, Tablero, Jugador, Dados, Excepciones). Responsabilidad única: reglas del juego y estado.
-- `cli/` — Interfaz de consola. Responsabilidad única: entrada/salida por texto y validación de usuario.
-- `pygame_ui/` — Interfaz gráfica con Pygame. Responsabilidad única: dibujo del tablero, manejo de eventos y orquestación visual.
-- `test/` — Pruebas unitarias de dominio y CLI.
-- `assets/` — Recursos opcionales (imágenes/sonidos) si aplica.
+- `core/` — Lógica de dominio (Backgammon, Tablero, Jugador, Dados, Excepciones)
+- `cli/` — Interfaz de consola (entrada/salida por texto y validación)
+- `pygame_ui/` — Interfaz gráfica (dibujo, eventos, orquestación visual)
+- `test/` — Pruebas unitarias de dominio y CLI
+- `assets/` — Recursos opcionales (imágenes/sonidos)
 
-Esta separación garantiza el desacoplamiento entre Lógica/Core y las Interfaces, permitiendo evolucionar la UI sin tocar el dominio.
+Esta separación garantiza el desacoplamiento entre dominio e interfaces, permitiendo evolucionar la UI sin tocar el core.
 
 Instalación y prerrequisitos
 ----------------------------
@@ -67,6 +88,48 @@ Controles (GUI)
 - Click derecho: mover al destino resaltado / reingresar / sacar ficha
 - Overlay final: Reiniciar o Finalizar
 
+Diagrama de clases
+------------------
+El diagrama resume el modelo de dominio (core) y las interfaces (CLI/Pygame); se presenta en ASCII legible:
+
+```text
+                                                                ┌───────────────────────────┐
+                                                                │        Backgammon         │  (orquestador)
+                                                                ├───────────────────────────┤
+                                                                │ - tablero: Tablero        │
+                                                                │ - jugador1, jugador2      │
+                                                                │ - dados: Dice             │
+                                                                ├───────────────────────────┤
+                                                                │ + iniciar_partida()       │
+                                                                │ + tirar_dados()           │
+                                                                │ + mover_ficha()           │
+                                                                │ + cambiar_turno()         │
+                                                                │ + verificar_ganador()     │
+                                                                └──────────┬────────────────┘
+                                                                                                         │ usa/coordina
+                                ┌──────────────────┼──────────────────┐
+                                │                  │                  │
+                                ▼                  ▼                  ▼
+        ┌───────────────┐  ┌───────────────┐  ┌───────────────┐
+        │   Jugador     │  │   Tablero     │  │     Dice      │
+        ├───────────────┤  ├───────────────┤  ├───────────────┤
+        │ + nombre:str  │  │ + puntos[24]  │  │ + tirar()     │
+        │ + color:str   │  │ + barra:{b,n} │  │ + valores[]   │
+        │ + fuera:int   │  │ + fuera:{b,n} │  │ + usar_valor()│
+        └───────────────┘  └───────────────┘  └───────────────┘
+
+                                         ┌─────────────┐                    ┌────────────────┐
+                                         │     CLI     │                    │   Pygame UI    │
+                                         ├─────────────┤                    ├────────────────┤
+                                         │ input/print │                    │ render/eventos │
+                                         └──────┬──────┘                    └───────┬────────┘
+                                                                        │                                 │
+                                                                        └──────────► usa Backgammon ◄─────┘
+
+Excepciones de dominio (ejemplos): OrigenSinFicha, DestinoBloqueado,
+NoPuedeReingresar, NoPuedeSacarFicha, TurnoIncorrecto, JuegoYaTerminado.
+```
+
 Ejecución de tests y cobertura
 ------------------------------
 ```powershell
@@ -74,14 +137,14 @@ Ejecución de tests y cobertura
 coverage run -m unittest -v
 coverage report -m
 ```
-Meta de cobertura: 90%+. El proyecto alcanza ~94% en los últimos reportes.
+Meta de cobertura: 90%+. El proyecto alcanza ≈94–96% en los últimos reportes.
 
 Notas y troubleshooting
 -----------------------
 - Para ocultar el banner de Pygame en consola, se puede usar `PYGAME_HIDE_SUPPORT_PROMPT=1`.
-- Si PowerShell bloquea scripts: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` (solo para la sesión actual si es necesario).
-- Si la UI no abre, verificá que `pygame` esté instalado y que el entorno virtual esté activado.
-
-Licencia
---------
-Uso académico.
+      │ + procesar_comando()      │                     │ + manejar_eventos()        │
+      └─────────────┬─────────────┘                     └──────────────┬────────────┘
+                    │                                               │
+                    │ llama                                          │ llama
+                    │                                               │
+                    └──────────────────────► BackGammon ◄────────────┘
